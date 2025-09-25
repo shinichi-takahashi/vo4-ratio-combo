@@ -1,277 +1,222 @@
 [
   {
-    "category": "テムジン",
-    "name": "747A",
+    "name": "テムジン 747A",
     "ratio": 6
   },
   {
-    "category": "テムジン",
-    "name": "747F",
+    "name": "テムジン 747F",
     "ratio": 3
   },
   {
-    "category": "テムジン",
-    "name": "747H",
+    "name": "テムジン 747H",
     "ratio": 2
   },
   {
-    "category": "テムジン",
-    "name": "747T",
+    "name": "テムジン 747T",
     "ratio": 1
   },
   {
-    "category": "テムジン",
-    "name": "10/80",
+    "name": "テムジン 10/80",
     "ratio": 1
   },
   {
-    "category": "テムジン",
-    "name": "707J",
+    "name": "テムジン 707J",
     "ratio": 3
   },
   {
-    "category": "テムジン",
-    "name": "707J+",
+    "name": "テムジン 707J+",
     "ratio": 4
   },
   {
-    "category": "テムジン",
-    "name": "707J/C",
+    "name": "テムジン 707J/C",
     "ratio": 2
   },
   {
-    "category": "マイザー",
-    "name": "ガンマ",
+    "name": "マイザー ガンマ",
     "ratio": 4
   },
   {
-    "category": "マイザー",
-    "name": "デルタ",
+    "name": "マイザー デルタ",
     "ratio": 3
   },
   {
-    "category": "マイザー",
-    "name": "イータ",
+    "name": "マイザー イータ",
     "ratio": 4
   },
   {
-    "category": "アファームド",
-    "name": "J TypeC",
+    "name": "アファームド J TypeC",
     "ratio": 1
   },
   {
-    "category": "アファームド",
-    "name": "J TypeA",
+    "name": "アファームド J TypeA",
     "ratio": 3
   },
   {
-    "category": "アファームド",
-    "name": "J TypeG",
+    "name": "アファームド J TypeG",
     "ratio": 2
   },
   {
-    "category": "アファームド",
-    "name": "J TypeX",
+    "name": "アファームド J TypeX",
     "ratio": 1
   },
   {
-    "category": "アファームド",
-    "name": "J TypeM",
+    "name": "アファームド J TypeM",
     "ratio": 2
   },
   {
-    "category": "アファームド",
-    "name": "T TypeF",
+    "name": "アファームド T TypeF",
     "ratio": 3
   },
   {
-    "category": "アファームド",
-    "name": "T TypeD",
+    "name": "アファームド T TypeD",
     "ratio": 2
   },
   {
-    "category": "アファームド",
-    "name": "T TypeB",
+    "name": "アファームド T TypeB",
     "ratio": 3
   },
   {
-    "category": "アファームド",
-    "name": "T TypeX",
+    "name": "アファームド T TypeX",
     "ratio": 1
   },
   {
-    "category": "フェイイェン",
-    "name": "VH",
+    "name": "フェイイェン VH",
     "ratio": 3
   },
   {
-    "category": "フェイイェン",
-    "name": "BH",
+    "name": "フェイイェン BH",
     "ratio": 2
   },
   {
-    "category": "フェイイェン",
-    "name": "PH",
+    "name": "フェイイェン PH",
     "ratio": 4
   },
   {
-    "category": "フェイイェン",
-    "name": "CH",
+    "name": "フェイイェン CH",
     "ratio": 1
   },
   {
-    "category": "VOX",
-    "name": "Dan",
+    "name": "VOX Dan",
     "ratio": 1
   },
   {
-    "category": "VOX",
-    "name": "Age",
+    "name": "VOX Age",
     "ratio": 3
   },
   {
-    "category": "VOX",
-    "name": "Joe",
+    "name": "VOX Joe",
     "ratio": 4
   },
   {
-    "category": "VOX",
-    "name": "Danny",
+    "name": "VOX Danny",
     "ratio": 2
   },
   {
-    "category": "VOX",
-    "name": "Bob",
+    "name": "VOX Bob",
     "ratio": 5
   },
   {
-    "category": "VOX",
-    "name": "U-ta",
+    "name": "VOX U-ta",
     "ratio": 2
   },
   {
-    "category": "VOX",
-    "name": "Mariko",
+    "name": "VOX Mariko",
     "ratio": 3
   },
   {
-    "category": "VOX",
-    "name": "Tetsuo",
+    "name": "VOX Tetsuo",
     "ratio": 6
   },
   {
-    "category": "ライデン",
-    "name": "E2",
+    "name": "ライデン E2",
     "ratio": 3
   },
   {
-    "category": "ライデン",
-    "name": "E1",
+    "name": "ライデン E1",
     "ratio": 5
   },
   {
-    "category": "ライデン",
-    "name": "D",
+    "name": "ライデン D",
     "ratio": 3
   },
   {
-    "category": "ライデン",
-    "name": "A",
+    "name": "ライデン A",
     "ratio": 6
   },
   {
-    "category": "ライデン",
-    "name": "N2",
+    "name": "ライデン N2",
     "ratio": 1
   },
   {
-    "category": "ライデン",
-    "name": "N1",
+    "name": "ライデン N1",
     "ratio": 1
   },
   {
-    "category": "エンジェラン",
-    "name": "慈愛",
+    "name": "エンジェラン 慈愛",
     "ratio": 2
   },
   {
-    "category": "エンジェラン",
-    "name": "慰撫",
+    "name": "エンジェラン 慰撫",
     "ratio": 3
   },
   {
-    "category": "エンジェラン",
-    "name": "治癒",
+    "name": "エンジェラン 治癒",
     "ratio": 2
   },
   {
-    "category": "ガラヤカ",
     "name": "ガラヤカ",
     "ratio": 5
   },
   {
-    "category": "バル",
-    "name": "メオラ",
+    "name": "バル・ディ・メオラ",
     "ratio": 2
   },
   {
-    "category": "バル",
-    "name": "チスタ",
+    "name": "バル・バ・チスタ",
     "ratio": 3
   },
   {
-    "category": "バル",
-    "name": "ティグラ",
+    "name": "バル・バ・ティグラ",
     "ratio": 3
   },
   {
-    "category": "バル",
-    "name": "リーノ",
+    "name": "バル・メ・リーノ",
     "ratio": 3
   },
   {
-    "category": "バル",
-    "name": "ランダ",
+    "name": "バル・ミ・ランダ",
     "ratio": 3
   },
   {
-    "category": "バル",
-    "name": "リムゾ",
+    "name": "バル・セ・リムゾ",
     "ratio": 3
   },
   {
-    "category": "スペシネフ",
-    "name": "罪",
+    "name": "スペシネフ 罪",
     "ratio": 5
   },
   {
-    "category": "スペシネフ",
-    "name": "終",
+    "name": "スペシネフ 終",
     "ratio": 3
   },
   {
-    "category": "景清",
-    "name": "風",
+    "name": "景清 風",
     "ratio": 4
   },
   {
-    "category": "景清",
-    "name": "林",
+    "name": "景清 林",
     "ratio": 4
   },
   {
-    "category": "景清",
-    "name": "火",
+    "name": "景清 火",
     "ratio": 5
   },
   {
-    "category": "景清",
-    "name": "山",
+    "name": "景清 山",
     "ratio": 5
   },
   {
-    "category": "景清",
-    "name": "旧風",
+    "name": "景清 旧風",
     "ratio": 2
   }
 ]

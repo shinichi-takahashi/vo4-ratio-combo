@@ -47,7 +47,7 @@ function initializeDefaultPlayers() {
     // Initialize skills with default values
     players.forEach(player => {
         robotData.forEach(robot => {
-            const key = `${robot.category}_${robot.name}`;
+            const key = robot.name;
             player.skills[key] = '自信なし';
         });
     });
@@ -106,7 +106,7 @@ function addPlayer() {
     
     // Initialize skills with default values
     robotData.forEach(robot => {
-        const key = `${robot.category}_${robot.name}`;
+        const key = robot.name;
         newPlayer.skills[key] = '自信なし';
     });
     
@@ -160,7 +160,6 @@ function renderTable() {
     
     // Update table headers
     thead.innerHTML = `
-        <th class="px-4 py-3 text-left font-semibold">分類</th>
         <th class="px-4 py-3 text-left font-semibold">機体名</th>
         <th class="px-4 py-3 text-center font-semibold">レシオ</th>
         ${players.map(player => `<th class="px-4 py-3 text-center font-semibold">${player.name}</th>`).join('')}
@@ -173,10 +172,9 @@ function renderTable() {
         const row = document.createElement('tr');
         row.className = 'border-b hover:bg-gray-50 transition-colors';
         
-        const robotKey = `${robot.category}_${robot.name}`;
+        const robotKey = robot.name;
         
         row.innerHTML = `
-            <td class="px-4 py-3 text-gray-800">${robot.category}</td>
             <td class="px-4 py-3 font-medium text-gray-900">${robot.name}</td>
             <td class="px-4 py-3 text-center">
                 <span class="ratio-badge text-white px-2 py-1 rounded-full text-sm font-semibold">
@@ -241,7 +239,7 @@ function generateOptimalTeam() {
 
 function findOptimalCombination(player, pointLimit) {
     const availableRobots = robotData.map(robot => {
-        const robotKey = `${robot.category}_${robot.name}`;
+        const robotKey = robot.name;
         const skill = player.skills[robotKey];
         const skillValue = SKILL_LEVELS[skill].value;
         
@@ -309,7 +307,7 @@ function displayResults(results) {
             )];
             return `
                 <div class="flex justify-between items-center py-1">
-                    <span class="font-medium">${robot.category} ${robot.name}</span>
+                    <span class="font-medium">${robot.name}</span>
                     <div class="flex items-center space-x-2">
                         <span class="ratio-badge text-white px-2 py-1 rounded text-xs">R:${robot.ratio}</span>
                         <span class="${skill.color} ${skill.textColor} px-2 py-1 rounded text-xs">${Object.keys(SKILL_LEVELS).find(key => SKILL_LEVELS[key].value === robot.skillValue)}</span>
