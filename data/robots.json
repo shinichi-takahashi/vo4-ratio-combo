@@ -125,81 +125,6 @@
     "ratio": 1
   },
   {
-    "category": "VOX",
-    "name": "Cindy",
-    "ratio": 3
-  },
-  {
-    "category": "VOX",
-    "name": "Hank",
-    "ratio": 3
-  },
-  {
-    "category": "VOX",
-    "name": "Max",
-    "ratio": 2
-  },
-  {
-    "category": "VOX",
-    "name": "Nick",
-    "ratio": 3
-  },
-  {
-    "category": "VOX",
-    "name": "Paul",
-    "ratio": 3
-  },
-  {
-    "category": "VOX",
-    "name": "Queen",
-    "ratio": 2
-  },
-  {
-    "category": "VOX",
-    "name": "Ray",
-    "ratio": 1
-  },
-  {
-    "category": "VOX",
-    "name": "Sue",
-    "ratio": 1
-  },
-  {
-    "category": "VOX",
-    "name": "Tom",
-    "ratio": 2
-  },
-  {
-    "category": "VOX",
-    "name": "Uma",
-    "ratio": 3
-  },
-  {
-    "category": "VOX",
-    "name": "Val",
-    "ratio": 4
-  },
-  {
-    "category": "VOX",
-    "name": "Will",
-    "ratio": 3
-  },
-  {
-    "category": "VOX",
-    "name": "X",
-    "ratio": 2
-  },
-  {
-    "category": "VOX",
-    "name": "Yoko",
-    "ratio": 1
-  },
-  {
-    "category": "VOX",
-    "name": "Zack",
-    "ratio": 1
-  },
-  {
     "category": "ライデン",
     "name": "HG",
     "ratio": 2
@@ -317,6 +242,36 @@
   {
     "category": "サイファー",
     "name": "XS",
+    "ratio": 4
+  },
+  {
+    "category": "グリス=ボック",
+    "name": "HG",
+    "ratio": 2
+  },
+  {
+    "category": "グリス=ボック",
+    "name": "EX",
+    "ratio": 3
+  },
+  {
+    "category": "グリス=ボック",
+    "name": "ST",
+    "ratio": 4
+  },
+  {
+    "category": "ストライクヴァンツァー",
+    "name": "TG",
+    "ratio": 2
+  },
+  {
+    "category": "ストライクヴァンツァー",
+    "name": "EX",
+    "ratio": 3
+  },
+  {
+    "category": "ストライクヴァンツァー",
+    "name": "CR",
     "ratio": 4
   }
 ]
