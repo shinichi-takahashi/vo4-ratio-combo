@@ -126,63 +126,13 @@
   },
   {
     "category": "VOX",
-    "name": "Brad",
-    "ratio": 1
-  },
-  {
-    "category": "VOX",
-    "name": "Lilly",
-    "ratio": 2
-  },
-  {
-    "category": "VOX",
-    "name": "Oliver",
-    "ratio": 3
-  },
-  {
-    "category": "VOX",
-    "name": "Albert",
-    "ratio": 4
-  },
-  {
-    "category": "VOX",
     "name": "Cindy",
     "ratio": 3
   },
   {
     "category": "VOX",
-    "name": "Frank",
-    "ratio": 2
-  },
-  {
-    "category": "VOX",
-    "name": "Gwen",
-    "ratio": 1
-  },
-  {
-    "category": "VOX",
     "name": "Hank",
     "ratio": 3
-  },
-  {
-    "category": "VOX",
-    "name": "Igor",
-    "ratio": 4
-  },
-  {
-    "category": "VOX",
-    "name": "Jane",
-    "ratio": 2
-  },
-  {
-    "category": "VOX",
-    "name": "Ken",
-    "ratio": 1
-  },
-  {
-    "category": "VOX",
-    "name": "Laura",
-    "ratio": 1
   },
   {
     "category": "VOX",
@@ -193,11 +143,6 @@
     "category": "VOX",
     "name": "Nick",
     "ratio": 3
-  },
-  {
-    "category": "VOX",
-    "name": "Oscar",
-    "ratio": 4
   },
   {
     "category": "VOX",
@@ -337,6 +282,41 @@
   {
     "category": "スペシネフ",
     "name": "EX",
+    "ratio": 4
+  },
+  {
+    "category": "バイパー",
+    "name": "II",
+    "ratio": 1
+  },
+  {
+    "category": "ライトニング",
+    "name": "TG",
+    "ratio": 2
+  },
+  {
+    "category": "ライトニング",
+    "name": "EX",
+    "ratio": 3
+  },
+  {
+    "category": "ライトニング",
+    "name": "CR",
+    "ratio": 4
+  },
+  {
+    "category": "サイファー",
+    "name": "AN",
+    "ratio": 2
+  },
+  {
+    "category": "サイファー",
+    "name": "HG",
+    "ratio": 3
+  },
+  {
+    "category": "サイファー",
+    "name": "XS",
     "ratio": 4
   }
 ]
