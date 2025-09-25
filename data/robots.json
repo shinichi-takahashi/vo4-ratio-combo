@@ -1,0 +1,342 @@
+[
+  {
+    "category": "テムジン",
+    "name": "747A",
+    "ratio": 6
+  },
+  {
+    "category": "テムジン",
+    "name": "747F",
+    "ratio": 3
+  },
+  {
+    "category": "テムジン",
+    "name": "747H",
+    "ratio": 2
+  },
+  {
+    "category": "テムジン",
+    "name": "747T",
+    "ratio": 1
+  },
+  {
+    "category": "テムジン",
+    "name": "10/80",
+    "ratio": 1
+  },
+  {
+    "category": "テムジン",
+    "name": "707J",
+    "ratio": 3
+  },
+  {
+    "category": "テムジン",
+    "name": "707J+",
+    "ratio": 4
+  },
+  {
+    "category": "テムジン",
+    "name": "707J/C",
+    "ratio": 2
+  },
+  {
+    "category": "マイザー",
+    "name": "ガンマ",
+    "ratio": 4
+  },
+  {
+    "category": "マイザー",
+    "name": "デルタ",
+    "ratio": 3
+  },
+  {
+    "category": "マイザー",
+    "name": "イータ",
+    "ratio": 4
+  },
+  {
+    "category": "アファームド",
+    "name": "J TypeC",
+    "ratio": 1
+  },
+  {
+    "category": "アファームド",
+    "name": "J TypeA",
+    "ratio": 3
+  },
+  {
+    "category": "アファームド",
+    "name": "J TypeG",
+    "ratio": 2
+  },
+  {
+    "category": "アファームド",
+    "name": "J TypeX",
+    "ratio": 1
+  },
+  {
+    "category": "アファームド",
+    "name": "J TypeM",
+    "ratio": 2
+  },
+  {
+    "category": "アファームド",
+    "name": "T TypeF",
+    "ratio": 3
+  },
+  {
+    "category": "アファームド",
+    "name": "T TypeD",
+    "ratio": 2
+  },
+  {
+    "category": "アファームド",
+    "name": "T TypeB",
+    "ratio": 3
+  },
+  {
+    "category": "アファームド",
+    "name": "T TypeX",
+    "ratio": 1
+  },
+  {
+    "category": "フェイイェン",
+    "name": "VH",
+    "ratio": 3
+  },
+  {
+    "category": "フェイイェン",
+    "name": "BH",
+    "ratio": 2
+  },
+  {
+    "category": "フェイイェン",
+    "name": "PH",
+    "ratio": 4
+  },
+  {
+    "category": "フェイイェン",
+    "name": "CH",
+    "ratio": 1
+  },
+  {
+    "category": "VOX",
+    "name": "Dan",
+    "ratio": 1
+  },
+  {
+    "category": "VOX",
+    "name": "Brad",
+    "ratio": 1
+  },
+  {
+    "category": "VOX",
+    "name": "Lilly",
+    "ratio": 2
+  },
+  {
+    "category": "VOX",
+    "name": "Oliver",
+    "ratio": 3
+  },
+  {
+    "category": "VOX",
+    "name": "Albert",
+    "ratio": 4
+  },
+  {
+    "category": "VOX",
+    "name": "Cindy",
+    "ratio": 3
+  },
+  {
+    "category": "VOX",
+    "name": "Frank",
+    "ratio": 2
+  },
+  {
+    "category": "VOX",
+    "name": "Gwen",
+    "ratio": 1
+  },
+  {
+    "category": "VOX",
+    "name": "Hank",
+    "ratio": 3
+  },
+  {
+    "category": "VOX",
+    "name": "Igor",
+    "ratio": 4
+  },
+  {
+    "category": "VOX",
+    "name": "Jane",
+    "ratio": 2
+  },
+  {
+    "category": "VOX",
+    "name": "Ken",
+    "ratio": 1
+  },
+  {
+    "category": "VOX",
+    "name": "Laura",
+    "ratio": 1
+  },
+  {
+    "category": "VOX",
+    "name": "Max",
+    "ratio": 2
+  },
+  {
+    "category": "VOX",
+    "name": "Nick",
+    "ratio": 3
+  },
+  {
+    "category": "VOX",
+    "name": "Oscar",
+    "ratio": 4
+  },
+  {
+    "category": "VOX",
+    "name": "Paul",
+    "ratio": 3
+  },
+  {
+    "category": "VOX",
+    "name": "Queen",
+    "ratio": 2
+  },
+  {
+    "category": "VOX",
+    "name": "Ray",
+    "ratio": 1
+  },
+  {
+    "category": "VOX",
+    "name": "Sue",
+    "ratio": 1
+  },
+  {
+    "category": "VOX",
+    "name": "Tom",
+    "ratio": 2
+  },
+  {
+    "category": "VOX",
+    "name": "Uma",
+    "ratio": 3
+  },
+  {
+    "category": "VOX",
+    "name": "Val",
+    "ratio": 4
+  },
+  {
+    "category": "VOX",
+    "name": "Will",
+    "ratio": 3
+  },
+  {
+    "category": "VOX",
+    "name": "X",
+    "ratio": 2
+  },
+  {
+    "category": "VOX",
+    "name": "Yoko",
+    "ratio": 1
+  },
+  {
+    "category": "VOX",
+    "name": "Zack",
+    "ratio": 1
+  },
+  {
+    "category": "ライデン",
+    "name": "HG",
+    "ratio": 2
+  },
+  {
+    "category": "ライデン",
+    "name": "EX",
+    "ratio": 3
+  },
+  {
+    "category": "ライデン",
+    "name": "CR",
+    "ratio": 4
+  },
+  {
+    "category": "ドルドレイ",
+    "name": "AN",
+    "ratio": 2
+  },
+  {
+    "category": "ドルドレイ",
+    "name": "HG",
+    "ratio": 3
+  },
+  {
+    "category": "ドルドレイ",
+    "name": "XS",
+    "ratio": 4
+  },
+  {
+    "category": "ベルグドル",
+    "name": "DF",
+    "ratio": 2
+  },
+  {
+    "category": "ベルグドル",
+    "name": "EX",
+    "ratio": 3
+  },
+  {
+    "category": "ベルグドル",
+    "name": "ST",
+    "ratio": 4
+  },
+  {
+    "category": "エンジェラン",
+    "name": "V1",
+    "ratio": 1
+  },
+  {
+    "category": "エンジェラン",
+    "name": "V2",
+    "ratio": 2
+  },
+  {
+    "category": "エンジェラン",
+    "name": "V3",
+    "ratio": 3
+  },
+  {
+    "category": "エンジェラン",
+    "name": "V4",
+    "ratio": 4
+  },
+  {
+    "category": "スペシネフ",
+    "name": "MJ",
+    "ratio": 1
+  },
+  {
+    "category": "スペシネフ",
+    "name": "HL",
+    "ratio": 2
+  },
+  {
+    "category": "スペシネフ",
+    "name": "HM",
+    "ratio": 3
+  },
+  {
+    "category": "スペシネフ",
+    "name": "EX",
+    "ratio": 4
+  }
+]
