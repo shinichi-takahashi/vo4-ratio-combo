@@ -125,153 +125,153 @@
     "ratio": 1
   },
   {
-    "category": "ライデン",
-    "name": "HG",
+    "category": "VOX",
+    "name": "Age",
+    "ratio": 3
+  },
+  {
+    "category": "VOX",
+    "name": "Joe",
+    "ratio": 4
+  },
+  {
+    "category": "VOX",
+    "name": "Danny",
     "ratio": 2
   },
   {
+    "category": "VOX",
+    "name": "Bob",
+    "ratio": 5
+  },
+  {
+    "category": "VOX",
+    "name": "U-ta",
+    "ratio": 2
+  },
+  {
+    "category": "VOX",
+    "name": "Mariko",
+    "ratio": 3
+  },
+  {
+    "category": "VOX",
+    "name": "Tetsuo",
+    "ratio": 6
+  },
+  {
     "category": "ライデン",
-    "name": "EX",
+    "name": "E2",
     "ratio": 3
   },
   {
     "category": "ライデン",
-    "name": "CR",
-    "ratio": 4
+    "name": "E1",
+    "ratio": 5
   },
   {
-    "category": "ドルドレイ",
-    "name": "AN",
-    "ratio": 2
-  },
-  {
-    "category": "ドルドレイ",
-    "name": "HG",
+    "category": "ライデン",
+    "name": "D",
     "ratio": 3
   },
   {
-    "category": "ドルドレイ",
-    "name": "XS",
-    "ratio": 4
+    "category": "ライデン",
+    "name": "A",
+    "ratio": 6
   },
   {
-    "category": "ベルグドル",
-    "name": "DF",
-    "ratio": 2
+    "category": "ライデン",
+    "name": "N2",
+    "ratio": 1
   },
   {
-    "category": "ベルグドル",
-    "name": "EX",
-    "ratio": 3
-  },
-  {
-    "category": "ベルグドル",
-    "name": "ST",
-    "ratio": 4
-  },
-  {
-    "category": "エンジェラン",
-    "name": "V1",
+    "category": "ライデン",
+    "name": "N1",
     "ratio": 1
   },
   {
     "category": "エンジェラン",
-    "name": "V2",
+    "name": "慈愛",
     "ratio": 2
   },
   {
     "category": "エンジェラン",
-    "name": "V3",
+    "name": "慰撫",
     "ratio": 3
   },
   {
     "category": "エンジェラン",
-    "name": "V4",
-    "ratio": 4
-  },
-  {
-    "category": "スペシネフ",
-    "name": "MJ",
-    "ratio": 1
-  },
-  {
-    "category": "スペシネフ",
-    "name": "HL",
+    "name": "治癒",
     "ratio": 2
   },
   {
-    "category": "スペシネフ",
-    "name": "HM",
+    "category": "ガラヤカ",
+    "name": "ガラヤカ",
+    "ratio": 5
+  },
+  {
+    "category": "バル",
+    "name": "メオラ",
+    "ratio": 2
+  },
+  {
+    "category": "バル",
+    "name": "チスタ",
+    "ratio": 3
+  },
+  {
+    "category": "バル",
+    "name": "ティグラ",
+    "ratio": 3
+  },
+  {
+    "category": "バル",
+    "name": "リーノ",
+    "ratio": 3
+  },
+  {
+    "category": "バル",
+    "name": "ランダ",
+    "ratio": 3
+  },
+  {
+    "category": "バル",
+    "name": "リムゾ",
     "ratio": 3
   },
   {
     "category": "スペシネフ",
-    "name": "EX",
-    "ratio": 4
+    "name": "罪",
+    "ratio": 5
   },
   {
-    "category": "バイパー",
-    "name": "II",
-    "ratio": 1
-  },
-  {
-    "category": "ライトニング",
-    "name": "TG",
-    "ratio": 2
-  },
-  {
-    "category": "ライトニング",
-    "name": "EX",
+    "category": "スペシネフ",
+    "name": "終",
     "ratio": 3
   },
   {
-    "category": "ライトニング",
-    "name": "CR",
+    "category": "景清",
+    "name": "風",
     "ratio": 4
   },
   {
-    "category": "サイファー",
-    "name": "AN",
+    "category": "景清",
+    "name": "林",
+    "ratio": 4
+  },
+  {
+    "category": "景清",
+    "name": "火",
+    "ratio": 5
+  },
+  {
+    "category": "景清",
+    "name": "山",
+    "ratio": 5
+  },
+  {
+    "category": "景清",
+    "name": "旧風",
     "ratio": 2
-  },
-  {
-    "category": "サイファー",
-    "name": "HG",
-    "ratio": 3
-  },
-  {
-    "category": "サイファー",
-    "name": "XS",
-    "ratio": 4
-  },
-  {
-    "category": "グリス=ボック",
-    "name": "HG",
-    "ratio": 2
-  },
-  {
-    "category": "グリス=ボック",
-    "name": "EX",
-    "ratio": 3
-  },
-  {
-    "category": "グリス=ボック",
-    "name": "ST",
-    "ratio": 4
-  },
-  {
-    "category": "ストライクヴァンツァー",
-    "name": "TG",
-    "ratio": 2
-  },
-  {
-    "category": "ストライクヴァンツァー",
-    "name": "EX",
-    "ratio": 3
-  },
-  {
-    "category": "ストライクヴァンツァー",
-    "name": "CR",
-    "ratio": 4
   }
 ]
