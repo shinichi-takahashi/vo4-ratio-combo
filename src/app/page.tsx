@@ -41,7 +41,6 @@ import { generateTeamPatternTree } from "@/lib/optimization";
 import { PlayerPointPatterns } from "@/components/player-point-patterns";
 import { TeamPatternTree } from "@/components/team-pattern-tree";
 import { AllPatternsTable } from "@/components/all-patterns-table";
-import { generateDummyPlayers } from "@/lib/dummy-data";
 import { encodePlayersToUrl } from "@/lib/url-state";
 import { getRatioBadgeClass } from "@/lib/ratio-heatmap";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -53,7 +52,6 @@ import {
   Copy,
   Plus,
   Minus,
-  Dice1,
   Rocket,
   Target,
   Zap,
@@ -93,32 +91,6 @@ export default function Home() {
     }>;
   }> | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
-
-  // 初期プレイヤーの設定
-  useEffect(() => {
-    if (isLoaded && players.length === 0) {
-      // ダミーデータでプレイヤーを追加
-      const dummyPlayers = generateDummyPlayers();
-      dummyPlayers.forEach((player) => {
-        addPlayer(player.name);
-        // スキルデータを設定
-        Object.entries(player.skills).forEach(([robotName, skill]) => {
-          updatePlayerSkill(player.id, robotName, skill);
-        });
-      });
-    }
-  }, [isLoaded, players.length, addPlayer, updatePlayerSkill]);
-
-  // ダミーデータURLを生成
-  const generateDummyUrl = () => {
-    const dummyPlayers = generateDummyPlayers();
-    const encodedData = encodePlayersToUrl(dummyPlayers);
-    const url = new URL(window.location.origin + window.location.pathname);
-    url.searchParams.set("data", encodedData);
-
-    // 新しいタブで開く
-    window.open(url.toString(), "_blank");
-  };
 
   // 新しいプレイヤーを追加
   const handleAddPlayer = () => {
@@ -343,13 +315,6 @@ export default function Home() {
                   </div>
                 </DialogContent>
               </Dialog>
-
-              <Button onClick={generateDummyUrl} variant="outline">
-                <div className="flex items-center space-x-2">
-                  <Dice1 className="w-4 h-4" />
-                  <span>テストデータで新しいタブ</span>
-                </div>
-              </Button>
 
               <Button
                 size="lg"
