@@ -1,4 +1,16 @@
 import { Player, SkillLevel } from "@/types";
+import LZString from "lz-string";
+import robotData from "@/data/robots.json";
+
+// 機体名を短縮IDにマップ
+const robotNameToId = new Map<string, number>();
+const robotIdToName = new Map<number, string>();
+
+// マップを初期化
+robotData.forEach((robot, index) => {
+  robotNameToId.set(robot.name, index);
+  robotIdToName.set(index, robot.name);
+});
 
 // データを圧縮してURLに適した形式に変換
 export function encodePlayersToUrl(players: Player[]): string {
@@ -10,16 +22,19 @@ export function encodePlayersToUrl(players: Player[]): string {
         // スキルレベルを数値に変換（使えない=0, 自信なし=1, 一応乗れる=2, サブ機=3, メイン機=4）
         const skillValue = getSkillValue(skill);
         if (skillValue > 0) {
-          // 使えない以外のみ保存
-          acc[robotName] = skillValue;
+          // 機体名をIDに変換して使えない以外のみ保存
+          const robotId = robotNameToId.get(robotName);
+          if (robotId !== undefined) {
+            acc[robotId] = skillValue;
+          }
         }
         return acc;
-      }, {} as Record<string, number>),
+      }, {} as Record<number, number>),
     }));
 
-    // JSON文字列化してBase64エンコード
+    // JSON文字列化してLZ圧縮
     const jsonString = JSON.stringify(compressedData);
-    return btoa(encodeURIComponent(jsonString));
+    return LZString.compressToEncodedURIComponent(jsonString);
   } catch (error) {
     console.error("Failed to encode players to URL:", error);
     return "";
@@ -31,8 +46,10 @@ export function decodePlayersFromUrl(encodedData: string): Player[] {
   try {
     if (!encodedData) return [];
 
-    // Base64デコード
-    const jsonString = decodeURIComponent(atob(encodedData));
+    // LZ圧縮解除
+    const jsonString = LZString.decompressFromEncodedURIComponent(encodedData);
+    if (!jsonString) return [];
+    
     const compressedData = JSON.parse(jsonString);
 
     // プレイヤーデータを復元
@@ -73,16 +90,17 @@ function getSkillFromValue(value: number): SkillLevel {
 
 // スキルデータを全機体分に展開
 function expandSkills(
-  compressedSkills: Record<string, number>
+  compressedSkills: Record<number, number>
 ): Record<string, SkillLevel> {
-  // 機体データを動的にインポートする必要があるため、ここでは基本的な実装のみ
-  // 実際の実装では、すべての機体名に対してデフォルトスキルを設定し、
-  // 圧縮データで上書きする
   const expandedSkills: Record<string, SkillLevel> = {};
 
-  // 圧縮データから復元
-  Object.entries(compressedSkills).forEach(([robotName, value]) => {
-    expandedSkills[robotName] = getSkillFromValue(value);
+  // 圧縮データから復元（IDを機体名に変換）
+  Object.entries(compressedSkills).forEach(([robotIdStr, value]) => {
+    const robotId = parseInt(robotIdStr, 10);
+    const robotName = robotIdToName.get(robotId);
+    if (robotName) {
+      expandedSkills[robotName] = getSkillFromValue(value);
+    }
   });
 
   return expandedSkills;
