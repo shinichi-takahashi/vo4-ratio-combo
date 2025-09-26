@@ -271,12 +271,7 @@ export default function Home() {
       // 初回など、計算できない場合でも状態は更新
       prevLockedRobotsRef.current = { ...lockedRobots };
     }
-  }, [
-    lockedRobots,
-    players.length,
-    handleCalculateOptimization,
-    isLoaded,
-  ]);
+  }, [lockedRobots, players.length, handleCalculateOptimization, isLoaded]);
 
   if (!isLoaded) {
     return (
