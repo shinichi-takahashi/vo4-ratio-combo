@@ -623,7 +623,7 @@ export default function Home() {
                   </CardTitle>
                   <CardDescription className="text-gray-600 ml-12 text-lg">
                     ✨ {pointLimit}
-                    PT制限での最適チーム編成組み合わせ（メイン機数優先順） 🚀
+                    PT制限での最適チーム編成組み合わせ（総ポイント順） 🚀
                   </CardDescription>
                 </CardHeader>
 

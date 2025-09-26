@@ -197,17 +197,13 @@ function AllPatternsTableComponent({
 
     generateCombinations(0, {}, 0);
 
-    // メイン機数 → 総ポイントでソートして上位20組み合わせに限定
+    // 総ポイント順でソートして上位20組み合わせに限定
     const uniqueCombinations = Array.from(
       new Set(rows.map((r) => r.combinationId))
     )
       .map((id) => rows.find((r) => r.combinationId === id)!)
       .sort((a, b) => {
-        // 第一にメイン機の数が多い順
-        if (a.totalMainRobots !== b.totalMainRobots) {
-          return b.totalMainRobots - a.totalMainRobots;
-        }
-        // 第二に総ポイントが高い順
+        // 総ポイントが高い順
         return b.totalPoints - a.totalPoints;
       })
       .slice(0, 20);
