@@ -239,10 +239,9 @@ function AllPatternsTableComponent({
                 ({robot.skillLevel})
               </span>
               {isLocked && (
-                <Lock
-                  className="w-3 h-3 text-blue-600"
-                  title="固定された機体"
-                />
+                <div title="固定された機体">
+                  <Lock className="w-3 h-3 text-blue-600" />
+                </div>
               )}
             </div>
           );
