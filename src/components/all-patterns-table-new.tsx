@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RobotWithSkill } from "@/lib/optimization";
+import { RobotWithSkill, SkillLevel } from "@/lib/optimization";
 import { getRatioBadgeClass } from "@/lib/ratio-heatmap";
 import {
   Target,
@@ -30,22 +30,6 @@ import {
   X,
   TableIcon,
 } from "lucide-react";
-
-interface PlayerPattern {
-  playerName: string;
-  pointUsage: number;
-  robots: RobotWithSkill[];
-  mainRobotCount: number;
-  efficiency: number;
-}
-
-interface TeamCombination {
-  totalPoints: number;
-  playerAssignments: Record<string, RobotWithSkill[]>;
-  totalMainRobots: number;
-  totalSkillValue: number;
-  efficiency: number;
-}
 
 // 1人1機体の行データ
 interface TeamRow {
@@ -87,7 +71,7 @@ export function AllPatternsTable({
     return <User className="w-4 h-4 text-gray-600" />;
   };
 
-  const getSkillIcon = (skill: string) => {
+  const getSkillIcon = (skill: SkillLevel) => {
     switch (skill) {
       case "メイン機":
         return <Trophy className="w-3 h-3 text-yellow-600" />;
@@ -266,66 +250,69 @@ export function AllPatternsTable({
           <span>チーム編成パターン表</span>
         </CardTitle>
         <CardDescription>
-          {totalPointLimit}PT制限でのチーム編成組み合わせ（メイン機数順）
+          {totalPointLimit}
+          PT制限でのチーム編成組み合わせ（1人1機体表示、メイン機数順）
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm">
+          <div className="font-semibold text-blue-800 mb-2">
+            💡 効率の計算方法
+          </div>
+          <div className="text-blue-700">
+            効率 = 総スキル値 ÷ 総ポイント数
+            <br />
+            スキル値: メイン機=4, サブ機=3, 一応乗れる=2, 自信なし=1, 使えない=0
+          </div>
+        </div>
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-20 text-center">総ポイント</TableHead>
-                {playerNames.map((playerName) => (
-                  <TableHead key={playerName} className="text-center min-w-48">
-                    <div className="flex items-center justify-center space-x-2">
-                      {getPlayerIcon(playerName)}
-                      <span>{playerName}</span>
-                    </div>
-                  </TableHead>
-                ))}
-                <TableHead className="w-20 text-center">メイン機</TableHead>
+                <TableHead className="w-32 text-center">プレイヤー</TableHead>
+                <TableHead className="text-center min-w-48">機体</TableHead>
+                <TableHead className="w-20 text-center">メイン機数</TableHead>
                 <TableHead className="w-20 text-center">効率</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {teamCombinations.map((combination, index) => (
+              {teamRows.map((row, index) => (
                 <TableRow
-                  key={index}
-                  className={
-                    combination.totalMainRobots > 0 ? "bg-green-50" : ""
-                  }
+                  key={`${row.combinationId}-${row.playerName}-${index}`}
+                  className={row.totalMainRobots > 0 ? "bg-green-50" : ""}
                 >
                   <TableCell className="text-center">
                     <Badge variant="outline" className="text-base">
-                      {combination.totalPoints}PT
+                      {row.totalPoints}PT
                     </Badge>
                   </TableCell>
-                  {playerNames.map((playerName) => (
-                    <TableCell key={playerName} className="text-center">
-                      {renderRobotCell(
-                        combination.playerAssignments[playerName] || []
-                      )}
-                    </TableCell>
-                  ))}
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center space-x-2">
+                      {getPlayerIcon(row.playerName)}
+                      <span className="font-medium">{row.playerName}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {renderRobotCell(row.robot)}
+                  </TableCell>
                   <TableCell className="text-center">
                     <Badge
                       className={
-                        combination.totalMainRobots > 0
+                        row.totalMainRobots > 0
                           ? "bg-yellow-500"
                           : "bg-gray-300"
                       }
                       variant={
-                        combination.totalMainRobots > 0
-                          ? "default"
-                          : "secondary"
+                        row.totalMainRobots > 0 ? "default" : "secondary"
                       }
                     >
-                      {combination.totalMainRobots}機
+                      {row.totalMainRobots}機
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="secondary">
-                      {combination.efficiency.toFixed(2)}
+                      {row.efficiency.toFixed(2)}
                     </Badge>
                   </TableCell>
                 </TableRow>
@@ -340,9 +327,9 @@ export function AllPatternsTable({
             • <span className="px-2 py-1 bg-green-50 rounded">緑色の行</span>:
             メイン機を使用するチーム編成（推奨）
           </div>
-          <div>• 各行が1つのチーム編成パターン</div>
+          <div>• 各行が1人1機体の使用状況</div>
+          <div>• 同じ総ポイント・メイン機数・効率の行は同じチーム編成</div>
           <div>• メイン機数が多い順 → 効率が良い順で並び替え</div>
-          <div>• 理想的なパターン: 全プレイヤーがメイン機を使用</div>
         </div>
       </CardContent>
     </Card>

@@ -40,7 +40,7 @@ import { generateShareableUrl, copyUrlToClipboard } from "@/lib/url-state";
 import { generateTeamPatternTree } from "@/lib/optimization";
 import { PlayerPointPatterns } from "@/components/player-point-patterns";
 import { TeamPatternTree } from "@/components/team-pattern-tree";
-import { AllPatternsTable } from "@/components/all-patterns-table";
+import { AllPatternsTable } from "@/components/all-patterns-table-new";
 import { encodePlayersToUrl } from "@/lib/url-state";
 import { getRatioBadgeClass } from "@/lib/ratio-heatmap";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -445,7 +445,7 @@ export default function Home() {
 
         {/* 全編成パターン表 */}
         {teamPatternTree && (
-          <div ref={teamResultRef}>
+          <div ref={teamResultRef} className="mt-8">
             <AllPatternsTable
               patterns={teamPatternTree}
               totalPointLimit={pointLimit}
