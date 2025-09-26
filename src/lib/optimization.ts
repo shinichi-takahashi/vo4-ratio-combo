@@ -839,7 +839,10 @@ export function generateBalancedPatterns(
 
       if (!usedCombinations.has(combinationKey)) {
         usedCombinations.add(combinationKey);
-        patterns.push(...combination);
+        // 完全なチーム編成のみを追加（全プレイヤーが機体を持つ）
+        if (combination.length === players.length) {
+          patterns.push(...combination);
+        }
       }
     }
   }
@@ -912,7 +915,7 @@ function generateBalancedCombination(
       usedRobots.add(selectedRobot.name);
       remainingPoints -= selectedRobot.ratio;
     } else {
-      // メイン・サブ機がない場合は失敗
+      // 固定機体がある場合、または適切な機体がない場合は失敗
       return null;
     }
   }
@@ -988,9 +991,26 @@ export function generatePlayerPriorityPatterns(
     }>;
   }> = [];
 
-  // 優先プレイヤーの最適機体を使ったパターンを生成（最大30パターン）
-  for (let i = 0; i < Math.min(priorityPlayerRobots.length, 30); i++) {
-    const robot = priorityPlayerRobots[i];
+  // 優先プレイヤーに固定機体がある場合は、それのみを使用
+  const priorityPlayerLockedRobot = lockedRobots?.[priorityPlayer.name];
+  let robotsToProcess: RobotWithSkill[] = [];
+
+  if (priorityPlayerLockedRobot) {
+    // 固定機体がある場合は、その機体のみを使用
+    const lockedRobotData = priorityPlayerRobots.find(
+      (r) => r.name === priorityPlayerLockedRobot
+    );
+    if (lockedRobotData) {
+      robotsToProcess = [lockedRobotData];
+    }
+  } else {
+    // 固定機体がない場合は通常通り最大30パターン
+    robotsToProcess = priorityPlayerRobots.slice(0, 30);
+  }
+
+  // 優先プレイヤーの機体を使ったパターンを生成
+  for (let i = 0; i < robotsToProcess.length; i++) {
+    const robot = robotsToProcess[i];
     const remainingPoints = pointLimit - robot.ratio;
 
     if (remainingPoints < 0) continue;

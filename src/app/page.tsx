@@ -235,6 +235,33 @@ export default function Home() {
     }
   };
 
+  // 固定機体変更時の自動再計算
+  const prevLockedRobotsRef = useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    // 初回は実行しない
+    const prevLocked = prevLockedRobotsRef.current;
+    const hasChanged =
+      JSON.stringify(prevLocked) !== JSON.stringify(lockedRobots);
+
+    if (
+      hasChanged &&
+      Object.keys(prevLocked).length > 0 &&
+      teamPatternTree &&
+      players.length > 0
+    ) {
+      // 少し遅延させて再計算
+      const timeoutId = setTimeout(async () => {
+        await handleCalculateOptimization();
+      }, 300);
+
+      prevLockedRobotsRef.current = { ...lockedRobots };
+      return () => clearTimeout(timeoutId);
+    } else {
+      prevLockedRobotsRef.current = { ...lockedRobots };
+    }
+  }, [lockedRobots, teamPatternTree, players.length]);
+
   // 最適化計算を実行
   const handleCalculateOptimization = async () => {
     setIsCalculating(true);
