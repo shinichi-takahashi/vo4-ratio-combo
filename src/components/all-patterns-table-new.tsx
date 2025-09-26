@@ -148,9 +148,11 @@ function AllPatternsTableComponent({
             )
             .join("|");
           const combinationId = assignmentKey;
-          
+
           // デバッグ用: 重複チェック
-          const existingRow = rows.find(r => r.combinationId === combinationId);
+          const existingRow = rows.find(
+            (r) => r.combinationId === combinationId
+          );
           if (existingRow) {
             // 既に同じ組み合わせがある場合はスキップ
             return;
@@ -269,16 +271,6 @@ function AllPatternsTableComponent({
 
   return (
     <div>
-      <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm">
-        <div className="font-semibold text-blue-800 mb-2">
-          💡 効率の計算方法
-        </div>
-        <div className="text-blue-700">
-          効率 = 総スキル値 ÷ 総ポイント数
-          <br />
-          スキル値: メイン機=4, サブ機=3, 一応乗れる=2, 自信なし=1, 使えない=0
-        </div>
-      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -293,7 +285,6 @@ function AllPatternsTableComponent({
                 </TableHead>
               ))}
               <TableHead className="w-20 text-center">メイン機</TableHead>
-              <TableHead className="w-20 text-center">効率</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -322,9 +313,6 @@ function AllPatternsTableComponent({
                     {row.totalMainRobots}機
                   </Badge>
                 </TableCell>
-                <TableCell className="text-center">
-                  <Badge variant="secondary">{row.efficiency.toFixed(2)}</Badge>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -338,8 +326,8 @@ function AllPatternsTableComponent({
           メイン機を使用するチーム編成（推奨）
         </div>
         <div>• 各行が1人1機体の使用状況</div>
-        <div>• 同じ総ポイント・メイン機数・効率の行は同じチーム編成</div>
-        <div>• メイン機数が多い順 → 効率が良い順で並び替え</div>
+        <div>• 同じ総ポイント・メイン機数の行は同じチーム編成</div>
+        <div>• 総ポイントが高い順で並び替え（強い機体優先）</div>
       </div>
     </div>
   );
