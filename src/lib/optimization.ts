@@ -932,10 +932,12 @@ function generateBalancedCombination(
         (r) => r.name === playerLockedRobot
       );
 
-      if (lockedRobotData && lockedRobotData.ratio <= remainingPoints) {
+      if (lockedRobotData && 
+          lockedRobotData.ratio <= remainingPoints &&
+          !usedRobots.has(lockedRobotData.name)) {
         selectedRobot = lockedRobotData;
       } else {
-        // 固定機体が見つからない、またはポイント不足の場合は失敗
+        // 固定機体が見つからない、他のプレイヤーが使用中、またはポイント不足の場合は失敗
         return null;
       }
     } else {

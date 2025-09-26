@@ -255,32 +255,27 @@ export default function Home() {
 
   // 固定機体変更時の自動再計算
   useEffect(() => {
-    // 初回は実行しない
     const prevLocked = prevLockedRobotsRef.current;
     const hasChanged =
       JSON.stringify(prevLocked) !== JSON.stringify(lockedRobots);
 
-    if (
-      hasChanged &&
-      Object.keys(prevLocked).length > 0 &&
-      teamPatternTree &&
-      players.length > 0
-    ) {
-      // 遅延を増やして過度な再計算を防止
+    // 固定機体が変更された場合は必ず再計算（初回除く）
+    if (hasChanged && players.length > 0 && isLoaded) {
       const timeoutId = setTimeout(async () => {
         await handleCalculateOptimization();
-      }, 600);
+      }, 300); // 遅延を短縮
 
       prevLockedRobotsRef.current = { ...lockedRobots };
       return () => clearTimeout(timeoutId);
-    } else {
+    } else if (hasChanged) {
+      // 初回など、計算できない場合でも状態は更新
       prevLockedRobotsRef.current = { ...lockedRobots };
     }
   }, [
     lockedRobots,
-    teamPatternTree,
     players.length,
     handleCalculateOptimization,
+    isLoaded,
   ]);
 
   if (!isLoaded) {
