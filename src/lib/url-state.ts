@@ -49,7 +49,7 @@ export function decodePlayersFromUrl(encodedData: string): Player[] {
     // LZ圧縮解除
     const jsonString = LZString.decompressFromEncodedURIComponent(encodedData);
     if (!jsonString) return [];
-    
+
     const compressedData = JSON.parse(jsonString);
 
     // プレイヤーデータを復元
