@@ -16,7 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RobotWithSkill, SkillLevel } from "@/lib/optimization";
+import { RobotWithSkill } from "@/lib/optimization";
+import { SkillLevel } from "@/types";
 import { getRatioBadgeClass } from "@/lib/ratio-heatmap";
 import {
   Target,
@@ -31,14 +32,13 @@ import {
   TableIcon,
 } from "lucide-react";
 
-// 1人1機体の行データ
+// 1行1編成パターンのデータ
 interface TeamRow {
   totalPoints: number;
-  playerName: string;
-  robot: RobotWithSkill | null;
+  playerAssignments: Record<string, RobotWithSkill[]>;
   totalMainRobots: number;
   efficiency: number;
-  combinationId: string; // 同じ組み合わせをグループ化するID
+  combinationId: string;
 }
 
 interface AllPatternsTableProps {
@@ -88,7 +88,7 @@ export function AllPatternsTable({
     }
   };
 
-  // プレイヤー別パターンを1人1機体の行データに変換
+  // プレイヤー別パターンを1行1編成パターンに変換
   const generateTeamRows = (): TeamRow[] => {
     const playerPatternMap: Record<
       string,
@@ -141,32 +141,13 @@ export function AllPatternsTable({
             2
           )}`;
 
-          // 各プレイヤーを1行ずつに分解
-          playerNames.forEach((playerName) => {
-            const playerRobots = currentAssignment[playerName] || [];
-            if (playerRobots.length === 0) {
-              // 機体なしの場合
-              rows.push({
-                totalPoints: currentPoints,
-                playerName,
-                robot: null,
-                totalMainRobots,
-                efficiency,
-                combinationId,
-              });
-            } else {
-              // 各機体を1行ずつ
-              playerRobots.forEach((robot) => {
-                rows.push({
-                  totalPoints: currentPoints,
-                  playerName,
-                  robot,
-                  totalMainRobots,
-                  efficiency,
-                  combinationId,
-                });
-              });
-            }
+          // 1行1編成パターンとして追加
+          rows.push({
+            totalPoints: currentPoints,
+            playerAssignments: { ...currentAssignment },
+            totalMainRobots,
+            efficiency,
+            combinationId,
           });
         }
         return;
@@ -211,19 +192,23 @@ export function AllPatternsTable({
 
   const teamRows = generateTeamRows();
 
-  const renderRobotCell = (robot: RobotWithSkill | null) => {
-    if (!robot) {
+  const renderRobotCell = (robots: RobotWithSkill[]) => {
+    if (robots.length === 0) {
       return <span className="text-gray-400">-</span>;
     }
 
     return (
-      <div className="flex items-center flex-wrap gap-1 text-xs">
-        {getSkillIcon(robot.skillLevel)}
-        <span className="font-medium">{robot.name}</span>
-        <Badge className={getRatioBadgeClass(robot.ratio)} variant="secondary">
-          {robot.ratio}PT
-        </Badge>
-        <span className="text-gray-500 text-xs">({robot.skillLevel})</span>
+      <div className="space-y-1">
+        {robots.map((robot, index) => (
+          <div key={index} className="flex items-center flex-wrap gap-1 text-xs">
+            {getSkillIcon(robot.skillLevel)}
+            <span className="font-medium">{robot.name}</span>
+            <Badge className={getRatioBadgeClass(robot.ratio)} variant="secondary">
+              {robot.ratio}PT
+            </Badge>
+            <span className="text-gray-500 text-xs">({robot.skillLevel})</span>
+          </div>
+        ))}
       </div>
     );
   };
@@ -250,8 +235,7 @@ export function AllPatternsTable({
           <span>チーム編成パターン表</span>
         </CardTitle>
         <CardDescription>
-          {totalPointLimit}
-          PT制限でのチーム編成組み合わせ（1人1機体表示、メイン機数順）
+          {totalPointLimit}PT制限でのチーム編成組み合わせ（1行1編成パターン、メイン機数順）
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -270,16 +254,22 @@ export function AllPatternsTable({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-20 text-center">総ポイント</TableHead>
-                <TableHead className="w-32 text-center">プレイヤー</TableHead>
-                <TableHead className="text-center min-w-48">機体</TableHead>
-                <TableHead className="w-20 text-center">メイン機数</TableHead>
+                {playerNames.map((playerName) => (
+                  <TableHead key={playerName} className="text-center min-w-48">
+                    <div className="flex items-center justify-center space-x-2">
+                      {getPlayerIcon(playerName)}
+                      <span>{playerName}</span>
+                    </div>
+                  </TableHead>
+                ))}
+                <TableHead className="w-20 text-center">メイン機</TableHead>
                 <TableHead className="w-20 text-center">効率</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {teamRows.map((row, index) => (
                 <TableRow
-                  key={`${row.combinationId}-${row.playerName}-${index}`}
+                  key={`${row.combinationId}-${index}`}
                   className={row.totalMainRobots > 0 ? "bg-green-50" : ""}
                 >
                   <TableCell className="text-center">
@@ -287,15 +277,11 @@ export function AllPatternsTable({
                       {row.totalPoints}PT
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      {getPlayerIcon(row.playerName)}
-                      <span className="font-medium">{row.playerName}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {renderRobotCell(row.robot)}
-                  </TableCell>
+                  {playerNames.map((playerName) => (
+                    <TableCell key={playerName} className="text-center">
+                      {renderRobotCell(row.playerAssignments[playerName] || [])}
+                    </TableCell>
+                  ))}
                   <TableCell className="text-center">
                     <Badge
                       className={
