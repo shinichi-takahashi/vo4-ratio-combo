@@ -66,7 +66,7 @@ export function calculateOptimalCombination(
       return true;
     })
     .sort((a, b) => {
-      // スキル値が高い順、同じならレシオが低い順（効率重視）
+      // スキル値が高い順、同じならレシオが低い順
       if (b.skillValue !== a.skillValue) {
         return b.skillValue - a.skillValue;
       }
@@ -105,7 +105,7 @@ export function calculateOptimalCombination(
     combination: bestCombination.robots,
     totalPoints,
     totalSkillValue: bestCombination.value,
-    efficiency: totalPoints > 0 ? bestCombination.value / totalPoints : 0,
+    efficiency: 0, // 効率は使わないので0固定
   };
 }
 
@@ -195,13 +195,24 @@ export function calculateTeamOptimalCombination(
           allCandidates.push({
             player: player.name,
             robot: robot,
-            efficiency: robot.skillValue / robot.ratio,
+            efficiency: 0, // 効率は使わない
           });
         });
     });
 
-    // 効率順でソート（スキル値/レシオ比が高い順）
-    allCandidates.sort((a, b) => b.efficiency - a.efficiency);
+    // スキル値優先でソート（メイン機、サブ機を優先）
+    allCandidates.sort((a, b) => {
+      // メイン機を最優先
+      if (a.robot.skillLevel === "メイン機" && b.robot.skillLevel !== "メイン機") return -1;
+      if (b.robot.skillLevel === "メイン機" && a.robot.skillLevel !== "メイン機") return 1;
+      
+      // サブ機を次に優先
+      if (a.robot.skillLevel === "サブ機" && b.robot.skillLevel === "一応乗れる") return -1;
+      if (b.robot.skillLevel === "サブ機" && a.robot.skillLevel === "一応乗れる") return 1;
+      
+      // 同じスキルレベルならスキル値が高い順
+      return b.robot.skillValue - a.robot.skillValue;
+    });
 
     let currentPoints = 0;
     let currentSkillValue = 0;
@@ -259,10 +270,7 @@ export function calculateTeamOptimalCombination(
     assignments: bestCombination.assignments,
     totalPoints: bestCombination.totalPoints,
     totalSkillValue: bestCombination.totalSkillValue,
-    efficiency:
-      bestCombination.totalPoints > 0
-        ? bestCombination.totalSkillValue / bestCombination.totalPoints
-        : 0,
+    efficiency: 0, // 効率は使わないので0固定
   };
 }
 
@@ -414,7 +422,18 @@ export function generatePlayerPointPatterns(
         };
       })
       .filter((robot) => robot.skillValue > 0)
-      .sort((a, b) => b.skillValue / b.ratio - a.skillValue / a.ratio);
+      .sort((a, b) => {
+        // メイン機を最優先
+        if (a.skillLevel === "メイン機" && b.skillLevel !== "メイン機") return -1;
+        if (b.skillLevel === "メイン機" && a.skillLevel !== "メイン機") return 1;
+        
+        // サブ機を次に優先
+        if (a.skillLevel === "サブ機" && b.skillLevel === "一応乗れる") return -1;
+        if (b.skillLevel === "サブ機" && a.skillLevel === "一応乗れる") return 1;
+        
+        // 同じスキルレベルならスキル値が高い順
+        return b.skillValue - a.skillValue;
+      });
 
     // 異なるポイント使用量でのパターンを生成
     const maxPlayerPoints = Math.min(
@@ -430,27 +449,24 @@ export function generatePlayerPointPatterns(
         combination.robots.length > 0 &&
         combination.totalPoints <= totalPointLimit
       ) {
-        const efficiency =
-          combination.totalSkillValue / combination.totalPoints;
-
         playerPatterns.push({
           playerName: player.name,
           pointUsage: combination.totalPoints,
           robots: combination.robots,
-          efficiency,
+          efficiency: 0, // 効率は使わない
           description: `${player.name}が${combination.totalPoints}PT使用する場合`,
         });
       }
     }
   });
 
-  // 効率順でソートして、各プレイヤーの代表的なパターンを選出
+  // ポイント順でソートして、各プレイヤーの代表的なパターンを選出
   const representativePatterns: typeof playerPatterns = [];
 
   players.forEach((player) => {
     const playerResults = playerPatterns
       .filter((p) => p.playerName === player.name)
-      .sort((a, b) => b.efficiency - a.efficiency)
+      .sort((a, b) => b.pointUsage - a.pointUsage) // ポイント使用量が多い順
       .slice(0, 3); // 各プレイヤーの上位3パターン
 
     representativePatterns.push(...playerResults);
@@ -613,30 +629,27 @@ export function generateTeamPatternTree(
         const mainRobotCount = combination.robots.filter(
           (r) => r.skillLevel === "メイン機"
         ).length;
-        const efficiency =
-          combination.totalSkillValue / combination.totalPoints;
-
         playerPatterns.push({
           pointUsage: combination.totalPoints,
           robots: combination.robots,
           mainRobotCount,
-          efficiency,
+          efficiency: 0, // 効率は使わない
         });
       }
     }
 
-    // メイン機数 → 効率 の順でソート
+    // メイン機数 → ポイント使用量 の順でソート
     const sortedPatterns = playerPatterns.sort((a, b) => {
       if (a.mainRobotCount !== b.mainRobotCount) {
         return b.mainRobotCount - a.mainRobotCount; // メイン機数が多い順
       }
-      return b.efficiency - a.efficiency; // 効率が良い順
+      return b.pointUsage - a.pointUsage; // ポイント使用量が多い順
     });
 
     if (sortedPatterns.length > 0) {
       const mainPattern = sortedPatterns[0];
 
-      // 代替パターン：メイン機数や効率が違うパターン
+      // 代替パターン：メイン機数やポイント使用量が違うパターン
       const alternatives = sortedPatterns
         .slice(1)
         .filter(

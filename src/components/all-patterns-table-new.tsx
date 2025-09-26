@@ -135,10 +135,6 @@ function AllPatternsTableComponent({
           const totalMainRobots = Object.values(currentAssignment)
             .flat()
             .filter((r) => r.skillLevel === "メイン機").length;
-          const totalSkillValue = Object.values(currentAssignment)
-            .flat()
-            .reduce((sum, r) => sum + r.skillValue, 0);
-          const efficiency = totalSkillValue / currentPoints;
 
           // 組み合わせIDを生成（機体名も含めて完全にユニークに）
           const assignmentKey = Object.entries(currentAssignment)
@@ -165,7 +161,7 @@ function AllPatternsTableComponent({
             totalPoints: currentPoints,
             playerAssignments: { ...currentAssignment },
             totalMainRobots,
-            efficiency,
+            efficiency: 0, // 効率は使わないので0に設定
             combinationId,
           });
         }
@@ -201,15 +197,15 @@ function AllPatternsTableComponent({
 
     generateCombinations(0, {}, 0);
 
-    // 効率 → 総ポイントでソートして上位20組み合わせに限定
+    // メイン機数 → 総ポイントでソートして上位20組み合わせに限定
     const uniqueCombinations = Array.from(
       new Set(rows.map((r) => r.combinationId))
     )
       .map((id) => rows.find((r) => r.combinationId === id)!)
       .sort((a, b) => {
-        // 第一に効率が高い順
-        if (Math.abs(a.efficiency - b.efficiency) > 0.01) {
-          return b.efficiency - a.efficiency;
+        // 第一にメイン機の数が多い順
+        if (a.totalMainRobots !== b.totalMainRobots) {
+          return b.totalMainRobots - a.totalMainRobots;
         }
         // 第二に総ポイントが高い順
         return b.totalPoints - a.totalPoints;
