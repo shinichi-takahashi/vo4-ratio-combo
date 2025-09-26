@@ -22,12 +22,16 @@ export interface PriorityOptimizationResult {
   description: string;
 }
 
-// 単一プレイヤーの最適解を計算
+// 単一プレイヤーの最適解を計算（固定機体対応）
 export function calculateOptimalCombination(
   player: Player,
   robots: Robot[],
-  pointLimit: number
+  pointLimit: number,
+  lockedRobots?: Record<string, string>
 ): OptimizationResult {
+  // 固定された機体をチェック
+  const playerLockedRobot = lockedRobots?.[player.name];
+
   // プレイヤーが使用可能な機体をフィルタリング
   const availableRobots: RobotWithSkill[] = robots
     .map((robot) => {
@@ -41,7 +45,26 @@ export function calculateOptimalCombination(
         skillLevel: skill,
       };
     })
-    .filter((robot) => robot.skillValue > 0) // 使えない機体を除外
+    .filter((robot) => {
+      // 使えない機体を除外
+      if (robot.skillValue <= 0) return false;
+
+      // 固定機体がある場合、それ以外は除外
+      if (playerLockedRobot) {
+        return robot.name === playerLockedRobot;
+      }
+
+      // 他のプレイヤーに固定されている機体は除外
+      if (lockedRobots) {
+        const isLockedByOther = Object.entries(lockedRobots).some(
+          ([otherPlayer, robotName]) =>
+            otherPlayer !== player.name && robotName === robot.name
+        );
+        if (isLockedByOther) return false;
+      }
+
+      return true;
+    })
     .sort((a, b) => {
       // スキル値が高い順、同じならレシオが低い順（効率重視）
       if (b.skillValue !== a.skillValue) {
@@ -90,17 +113,20 @@ export function calculateOptimalCombination(
 export function calculateTeamOptimalCombination(
   players: Player[],
   robots: Robot[],
-  pointLimit: number
+  pointLimit: number,
+  lockedRobots?: Record<string, string>
 ): {
   assignments: Record<string, RobotWithSkill[]>;
   totalPoints: number;
   totalSkillValue: number;
   efficiency: number;
 } {
-  // 各プレイヤーが使用可能な機体とスキル値を計算
+  // 各プレイヤーが使用可能な機体とスキル値を計算（固定機体対応）
   const playerRobots: Record<string, RobotWithSkill[]> = {};
 
   players.forEach((player) => {
+    const playerLockedRobot = lockedRobots?.[player.name];
+
     playerRobots[player.name] = robots
       .map((robot) => {
         const skill = player.skills[robot.name] || "使えない";
@@ -113,7 +139,26 @@ export function calculateTeamOptimalCombination(
           skillLevel: skill,
         };
       })
-      .filter((robot) => robot.skillValue > 0); // 使えない機体を除外
+      .filter((robot) => {
+        // 使えない機体を除外
+        if (robot.skillValue <= 0) return false;
+
+        // 固定機体がある場合、それ以外は除外
+        if (playerLockedRobot) {
+          return robot.name === playerLockedRobot;
+        }
+
+        // 他のプレイヤーに固定されている機体は除外
+        if (lockedRobots) {
+          const isLockedByOther = Object.entries(lockedRobots).some(
+            ([otherPlayer, robotName]) =>
+              otherPlayer !== player.name && robotName === robot.name
+          );
+          if (isLockedByOther) return false;
+        }
+
+        return true;
+      });
   });
 
   // 全ての可能な組み合わせを生成（各機体を誰が使うか）
@@ -225,10 +270,13 @@ export function calculateTeamOptimalCombination(
 export function calculateAllOptimalCombinations(
   players: Player[],
   robots: Robot[],
-  pointLimit: number
+  pointLimit: number,
+  lockedRobots?: Record<string, string>
 ): OptimizationResult[] {
   return players
-    .map((player) => calculateOptimalCombination(player, robots, pointLimit))
+    .map((player) =>
+      calculateOptimalCombination(player, robots, pointLimit, lockedRobots)
+    )
     .sort((a, b) => b.totalSkillValue - a.totalSkillValue); // スキル値が高い順
 }
 
@@ -238,7 +286,8 @@ export function calculatePriorityOptimization(
   robots: Robot[],
   pointLimit: number,
   priorityPlayer: Player,
-  priorityRobotNames: string[] = []
+  priorityRobotNames: string[] = [],
+  lockedRobots?: Record<string, string>
 ): PriorityOptimizationResult {
   // 優先プレイヤーの機体を確定
   let priorityRobots: RobotWithSkill[] = [];
@@ -309,7 +358,9 @@ export function calculatePriorityOptimization(
   // 残りのプレイヤーで最適解を計算
   const otherPlayers = players
     .filter((player) => player.id !== priorityPlayer.id)
-    .map((player) => calculateOptimalCombination(player, robots, pointLimit));
+    .map((player) =>
+      calculateOptimalCombination(player, robots, pointLimit, lockedRobots)
+    );
 
   const totalTeamPoints =
     priorityRobots.reduce((sum, robot) => sum + robot.ratio, 0) +
@@ -466,7 +517,8 @@ function findBestCombinationForPoints(
 export function generateTeamPatternTree(
   players: Player[],
   robots: Robot[],
-  pointLimit: number
+  pointLimit: number,
+  lockedRobots?: Record<string, string>
 ): Array<{
   playerName: string;
   pointUsage: number;
@@ -489,6 +541,8 @@ export function generateTeamPatternTree(
   }> = [];
 
   players.forEach((player) => {
+    const playerLockedRobot = lockedRobots?.[player.name];
+
     const playerRobots = robots
       .map((robot) => {
         const skill = player.skills[robot.name] || "使えない";
@@ -501,7 +555,26 @@ export function generateTeamPatternTree(
           skillLevel: skill,
         };
       })
-      .filter((robot) => robot.skillValue > 0);
+      .filter((robot) => {
+        // 使えない機体を除外
+        if (robot.skillValue <= 0) return false;
+
+        // 固定機体がある場合、それ以外は除外
+        if (playerLockedRobot) {
+          return robot.name === playerLockedRobot;
+        }
+
+        // 他のプレイヤーに固定されている機体は除外
+        if (lockedRobots) {
+          const isLockedByOther = Object.entries(lockedRobots).some(
+            ([otherPlayer, robotName]) =>
+              otherPlayer !== player.name && robotName === robot.name
+          );
+          if (isLockedByOther) return false;
+        }
+
+        return true;
+      });
 
     // メイン機を最優先でソート
     const sortedRobots = playerRobots.sort((a, b) => {
@@ -515,12 +588,12 @@ export function generateTeamPatternTree(
       }
 
       // 3. スキルレベル順（メイン機 > サブ機 > 一応乗れる > 自信なし）
-      const skillOrder: Record<SkillLevel, number> = { 
-        メイン機: 0, 
-        サブ機: 1, 
-        一応乗れる: 2, 
+      const skillOrder: Record<SkillLevel, number> = {
+        メイン機: 0,
+        サブ機: 1,
+        一応乗れる: 2,
         自信なし: 3,
-        使えない: 4
+        使えない: 4,
       };
       return skillOrder[a.skillLevel] - skillOrder[b.skillLevel];
     });

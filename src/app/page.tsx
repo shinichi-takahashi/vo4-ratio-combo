@@ -62,6 +62,9 @@ import {
   ThumbsUp,
   HelpCircle,
   X,
+  Lock,
+  Settings2,
+  TableIcon,
 } from "lucide-react";
 
 export default function Home() {
@@ -92,6 +95,10 @@ export default function Home() {
   }> | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
+  // 機体固定状態管理
+  const [lockedRobots, setLockedRobots] = useState<Record<string, string>>({});
+  // { "プレイヤー名": "機体名" } の形式
+
   // 新しいプレイヤーを追加
   const handleAddPlayer = () => {
     if (newPlayerName.trim()) {
@@ -99,6 +106,24 @@ export default function Home() {
       setNewPlayerName("");
     }
   };
+
+  // 機体固定/解除の関数
+  const toggleRobotLock = useCallback(
+    (playerName: string, robotName?: string) => {
+      setLockedRobots((prev) => {
+        const newLocked = { ...prev };
+        if (robotName && newLocked[playerName] !== robotName) {
+          // 機体を固定
+          newLocked[playerName] = robotName;
+        } else {
+          // 固定を解除
+          delete newLocked[playerName];
+        }
+        return newLocked;
+      });
+    },
+    []
+  );
 
   // スキルレベルを変更（メモ化）
   const handleSkillChange = useCallback(
@@ -171,11 +196,12 @@ export default function Home() {
         },
       }));
 
-      // ツリー状パターンも生成
+      // ツリー状パターンも生成（固定機体を考慮）
       const treePatterns = generateTeamPatternTree(
         playersWithAllSkills,
         memoizedRobotData,
-        pointLimit
+        pointLimit,
+        lockedRobots
       );
 
       setTeamPatternTree(treePatterns);
@@ -446,11 +472,168 @@ export default function Home() {
         {/* 全編成パターン表 */}
         {teamPatternTree && (
           <div ref={teamResultRef} className="mt-8">
-            <AllPatternsTable
-              patterns={teamPatternTree}
-              totalPointLimit={pointLimit}
-              playerNames={players.map((p) => p.name)}
-            />
+            <Card className="animate-in slide-in-from-bottom-4 duration-500">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <TableIcon className="w-5 h-5 text-blue-600" />
+                  <span>チーム編成パターン表</span>
+                </CardTitle>
+                <CardDescription>
+                  {pointLimit}
+                  PT制限でのチーム編成組み合わせ（1行1編成パターン、メイン機数順）
+                </CardDescription>
+              </CardHeader>
+
+              {/* プレイヤー別機体固定設定 */}
+              <CardContent className="">
+                <div className="mb-4">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Settings2 className="w-4 h-4 text-gray-500" />
+                    <h3 className="text-sm font-semibold text-gray-700">
+                      機体固定設定（任意）
+                    </h3>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-4">
+                    特定のプレイヤーの機体を固定して、残りのプレイヤーの最適編成を提案できます
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {players.map((player) => (
+                      <div key={player.id} className="space-y-1">
+                        <label className="text-xs font-medium text-gray-700">
+                          {player.name}
+                        </label>
+                        <Select
+                          value={lockedRobots[player.name] || "none"}
+                          onValueChange={(value) => {
+                            if (value === "none") {
+                              toggleRobotLock(player.name); // 固定解除
+                            } else {
+                              toggleRobotLock(player.name, value); // 機体固定
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="w-full bg-white h-8 text-xs">
+                            <SelectValue placeholder="機体を選択" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-gray-500">
+                                  固定しない
+                                </span>
+                              </div>
+                            </SelectItem>
+                            {memoizedRobotData
+                              .filter((robot) => {
+                                const skill =
+                                  player.skills[robot.name] || "使えない";
+                                return skill !== "使えない";
+                              })
+                              .sort((a, b) => {
+                                const skillA =
+                                  player.skills[a.name] || "使えない";
+                                const skillB =
+                                  player.skills[b.name] || "使えない";
+
+                                // スキルレベルの優先順位
+                                const skillOrder = {
+                                  メイン機: 0,
+                                  サブ機: 1,
+                                  一応乗れる: 2,
+                                  自信なし: 3,
+                                };
+
+                                const orderA =
+                                  skillOrder[
+                                    skillA as keyof typeof skillOrder
+                                  ] ?? 999;
+                                const orderB =
+                                  skillOrder[
+                                    skillB as keyof typeof skillOrder
+                                  ] ?? 999;
+
+                                // 同じスキルレベルの場合はレシオ順（低い方が先）
+                                if (orderA === orderB) {
+                                  return a.ratio - b.ratio;
+                                }
+
+                                return orderA - orderB;
+                              })
+                              .map((robot) => {
+                                const skill =
+                                  player.skills[robot.name] || "使えない";
+                                return (
+                                  <SelectItem
+                                    key={robot.name}
+                                    value={robot.name}
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      {skill === "メイン機" && (
+                                        <Trophy className="w-3 h-3 text-yellow-600" />
+                                      )}
+                                      {skill === "サブ機" && (
+                                        <Medal className="w-3 h-3 text-blue-600" />
+                                      )}
+                                      {skill === "一応乗れる" && (
+                                        <ThumbsUp className="w-3 h-3 text-green-600" />
+                                      )}
+                                      {skill === "自信なし" && (
+                                        <HelpCircle className="w-3 h-3 text-orange-600" />
+                                      )}
+                                      <span className="font-medium text-xs">
+                                        {robot.name}
+                                      </span>
+                                      <Badge
+                                        className="ml-1 text-xs"
+                                        variant="secondary"
+                                      >
+                                        {robot.ratio}PT
+                                      </Badge>
+                                    </div>
+                                  </SelectItem>
+                                );
+                              })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+
+                  {Object.keys(lockedRobots).length > 0 && (
+                    <div className="mt-3 p-2">
+                      <div className="text-xs font-medium text-gray-600 mb-1">
+                        🔒 固定中
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {Object.entries(lockedRobots).map(
+                          ([playerName, robotName]) => (
+                            <Badge
+                              key={`${playerName}-${robotName}`}
+                              variant="default"
+                              className="bg-gray-600 text-xs"
+                            >
+                              <Lock className="w-2 h-2 mr-1" />
+                              {playerName}: {robotName}
+                            </Badge>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+
+              {/* 編成パターン表本体 */}
+              <CardContent className="pt-0">
+                <AllPatternsTable
+                  patterns={teamPatternTree}
+                  totalPointLimit={pointLimit}
+                  playerNames={players.map((p) => p.name)}
+                  lockedRobots={lockedRobots}
+                />
+              </CardContent>
+            </Card>
           </div>
         )}
 
