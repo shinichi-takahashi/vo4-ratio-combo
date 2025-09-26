@@ -1,5 +1,6 @@
 "use client";
 
+import React, { memo, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -58,7 +59,7 @@ interface AllPatternsTableProps {
   lockedRobots?: Record<string, string>;
 }
 
-export function AllPatternsTable({
+function AllPatternsTableComponent({
   patterns,
   totalPointLimit,
   playerNames,
@@ -193,7 +194,11 @@ export function AllPatternsTable({
     );
   };
 
-  const teamRows = generateTeamRows();
+  // チーム行データをメモ化してパフォーマンス向上
+  const teamRows = useMemo(
+    () => generateTeamRows(),
+    [patterns, playerNames, totalPointLimit]
+  );
 
   const renderRobotCell = (robots: RobotWithSkill[]) => {
     if (robots.length === 0) {
@@ -318,3 +323,6 @@ export function AllPatternsTable({
     </div>
   );
 }
+
+// メモ化してパフォーマンス向上
+export const AllPatternsTable = memo(AllPatternsTableComponent);

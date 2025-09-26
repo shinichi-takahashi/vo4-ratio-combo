@@ -152,48 +152,64 @@ export default function Home() {
   // ロボットデータをメモ化
   const memoizedRobotData = useMemo(() => robotData as Robot[], []);
 
-  // パターン選択変更時の処理
+  // デバウンスしたプレイヤーデータ（遅延を最適化）
+  const debouncedPlayers = useDebounce(players, 500);
+
+  // プレイヤースキルデータの準備をメモ化
+  const memoizedPlayersWithSkills = useMemo(() => {
+    return debouncedPlayers.map((player) => ({
+      ...player,
+      skills: {
+        ...memoizedRobotData.reduce((skills, robot) => {
+          skills[robot.name] = player.skills[robot.name] || "使えない";
+          return skills;
+        }, {} as Record<string, SkillLevel>),
+        ...player.skills,
+      },
+    }));
+  }, [debouncedPlayers, memoizedRobotData]);
+
+  // パターン選択変更時の処理（最適化版）
   const handlePatternTypeChange = useCallback(
     (value: string) => {
       setSelectedPatternType(value);
 
-      // プレイヤー優先が選択された場合で、まだ計算されていない場合は再計算
-      if (
-        value.startsWith("player-") &&
-        players.length > 0 &&
-        memoizedRobotData.length > 0
-      ) {
-        const playerId = parseInt(value.replace("player-", ""));
+      // 遅延実行で不要な計算を防止
+      setTimeout(() => {
         if (
-          !playerPriorityPatterns[playerId] ||
-          playerPriorityPatterns[playerId].length === 0
+          value.startsWith("player-") &&
+          memoizedPlayersWithSkills.length > 0 &&
+          memoizedRobotData.length > 0
         ) {
-          // 必要に応じて個別に計算
-          const priorityPatterns = generatePlayerPriorityPatterns(
-            players,
-            memoizedRobotData,
-            pointLimit,
-            playerId,
-            lockedRobots
-          );
-          setPlayerPriorityPatterns((prev) => ({
-            ...prev,
-            [playerId]: priorityPatterns,
-          }));
+          const playerId = parseInt(value.replace("player-", ""));
+          if (
+            !playerPriorityPatterns[playerId] ||
+            playerPriorityPatterns[playerId].length === 0
+          ) {
+            // 必要に応じて個別に計算
+            const priorityPatterns = generatePlayerPriorityPatterns(
+              memoizedPlayersWithSkills,
+              memoizedRobotData,
+              pointLimit,
+              playerId,
+              lockedRobots
+            );
+            setPlayerPriorityPatterns((prev) => ({
+              ...prev,
+              [playerId]: priorityPatterns,
+            }));
+          }
         }
-      }
+      }, 100);
     },
     [
-      players,
+      memoizedPlayersWithSkills,
       memoizedRobotData,
       pointLimit,
       lockedRobots,
       playerPriorityPatterns,
     ]
   );
-
-  // デバウンスしたプレイヤーデータ
-  const debouncedPlayers = useDebounce(players, 300);
 
   // 結果表示用のref
   const teamResultRef = useRef<HTMLDivElement>(null);
@@ -250,10 +266,10 @@ export default function Home() {
       teamPatternTree &&
       players.length > 0
     ) {
-      // 少し遅延させて再計算
+      // 遅延を増やして過度な再計算を防止
       const timeoutId = setTimeout(async () => {
         await handleCalculateOptimization();
-      }, 300);
+      }, 600);
 
       prevLockedRobotsRef.current = { ...lockedRobots };
       return () => clearTimeout(timeoutId);
@@ -267,17 +283,8 @@ export default function Home() {
     setIsCalculating(true);
 
     try {
-      // 全機体のスキルデータを初期化
-      const playersWithAllSkills = debouncedPlayers.map((player) => ({
-        ...player,
-        skills: {
-          ...memoizedRobotData.reduce((skills, robot) => {
-            skills[robot.name] = player.skills[robot.name] || "使えない";
-            return skills;
-          }, {} as Record<string, SkillLevel>),
-          ...player.skills,
-        },
-      }));
+      // メモ化されたプレイヤーデータを使用
+      const playersWithAllSkills = memoizedPlayersWithSkills;
 
       // ツリー状パターンも生成（固定機体を考慮）
       const treePatterns = generateTeamPatternTree(
@@ -289,27 +296,31 @@ export default function Home() {
 
       setTeamPatternTree(treePatterns);
 
-      // バランスパターンを生成（メイン・サブ機優先）
-      const balancePatterns = generateBalancedPatterns(
-        playersWithAllSkills,
-        memoizedRobotData,
-        pointLimit,
-        lockedRobots
-      );
-      setBalancedPatterns(balancePatterns);
-
-      // プレイヤー優先パターンも生成
-      const priorityPatterns: Record<number, any[]> = {};
-      playersWithAllSkills.forEach((player) => {
-        priorityPatterns[player.id] = generatePlayerPriorityPatterns(
+      // パフォーマンス最適化: 選択されたパターンタイプに応じて計算
+      if (selectedPatternType === "balance") {
+        // バランスパターンのみ生成
+        const balancePatterns = generateBalancedPatterns(
           playersWithAllSkills,
           memoizedRobotData,
           pointLimit,
-          player.id,
           lockedRobots
         );
-      });
-      setPlayerPriorityPatterns(priorityPatterns);
+        setBalancedPatterns(balancePatterns);
+      } else {
+        // プレイヤー優先パターンのみ生成
+        const playerId = parseInt(selectedPatternType.replace("player-", ""));
+        const currentPlayerPatterns = generatePlayerPriorityPatterns(
+          playersWithAllSkills,
+          memoizedRobotData,
+          pointLimit,
+          playerId,
+          lockedRobots
+        );
+        setPlayerPriorityPatterns((prev) => ({
+          ...prev,
+          [playerId]: currentPlayerPatterns,
+        }));
+      }
 
       // 結果が表示されたら自動スクロール
       setTimeout(() => {

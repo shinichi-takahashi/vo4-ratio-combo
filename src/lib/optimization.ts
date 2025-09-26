@@ -812,13 +812,13 @@ export function generateBalancedPatterns(
     playerMainSubRobots[player.name] = mainSubRobots;
   });
 
-  // メイン・サブ機を多く含む組み合わせを優先的に生成
-  const maxPatterns = 50; // 候補数を大幅増加
+  // メイン・サブ機を多く含む組み合わせを優先的に生成（パフォーマンス最適化）
+  const maxPatterns = 25; // 候補数を適切に調整
   const usedCombinations = new Set<string>();
 
   for (
     let attempt = 0;
-    attempt < 300 && patterns.length < maxPatterns; // 試行回数も増加
+    attempt < 150 && patterns.length < maxPatterns; // 試行回数を最適化
     attempt++
   ) {
     const combination = generateBalancedCombination(
@@ -1008,8 +1008,8 @@ export function generatePlayerPriorityPatterns(
     robotsToProcess = priorityPlayerRobots.slice(0, 30);
   }
 
-  // 優先プレイヤーの機体を使ったパターンを生成
-  for (let i = 0; i < robotsToProcess.length; i++) {
+  // 優先プレイヤーの機体を使ったパターンを生成（パフォーマンス最適化）
+  for (let i = 0; i < Math.min(robotsToProcess.length, 15); i++) {
     const robot = robotsToProcess[i];
     const remainingPoints = pointLimit - robot.ratio;
 
