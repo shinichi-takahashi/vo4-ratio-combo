@@ -214,6 +214,9 @@ export default function Home() {
   // 結果表示用のref
   const teamResultRef = useRef<HTMLDivElement>(null);
 
+  // 固定機体変更時の自動再計算
+  const prevLockedRobotsRef = useRef<Record<string, string>>({});
+
   // アイコンヘルパー関数
   const getPlayerIcon = (name: string) => {
     if (name.includes("あんのーん"))
@@ -251,35 +254,8 @@ export default function Home() {
     }
   };
 
-  // 固定機体変更時の自動再計算
-  const prevLockedRobotsRef = useRef<Record<string, string>>({});
-
-  useEffect(() => {
-    // 初回は実行しない
-    const prevLocked = prevLockedRobotsRef.current;
-    const hasChanged =
-      JSON.stringify(prevLocked) !== JSON.stringify(lockedRobots);
-
-    if (
-      hasChanged &&
-      Object.keys(prevLocked).length > 0 &&
-      teamPatternTree &&
-      players.length > 0
-    ) {
-      // 遅延を増やして過度な再計算を防止
-      const timeoutId = setTimeout(async () => {
-        await handleCalculateOptimization();
-      }, 600);
-
-      prevLockedRobotsRef.current = { ...lockedRobots };
-      return () => clearTimeout(timeoutId);
-    } else {
-      prevLockedRobotsRef.current = { ...lockedRobots };
-    }
-  }, [lockedRobots, teamPatternTree, players.length]);
-
   // 最適化計算を実行
-  const handleCalculateOptimization = async () => {
+  const handleCalculateOptimization = useCallback(async () => {
     setIsCalculating(true);
 
     try {
@@ -337,7 +313,46 @@ export default function Home() {
     } finally {
       setIsCalculating(false);
     }
-  };
+  }, [
+    selectedPatternType,
+    memoizedPlayersWithSkills,
+    memoizedRobotData,
+    pointLimit,
+    lockedRobots,
+    setPlayerPriorityPatterns,
+    setBalancedPatterns,
+    setTeamPatternTree,
+  ]);
+
+  // 固定機体変更時の自動再計算
+  useEffect(() => {
+    // 初回は実行しない
+    const prevLocked = prevLockedRobotsRef.current;
+    const hasChanged =
+      JSON.stringify(prevLocked) !== JSON.stringify(lockedRobots);
+
+    if (
+      hasChanged &&
+      Object.keys(prevLocked).length > 0 &&
+      teamPatternTree &&
+      players.length > 0
+    ) {
+      // 遅延を増やして過度な再計算を防止
+      const timeoutId = setTimeout(async () => {
+        await handleCalculateOptimization();
+      }, 600);
+
+      prevLockedRobotsRef.current = { ...lockedRobots };
+      return () => clearTimeout(timeoutId);
+    } else {
+      prevLockedRobotsRef.current = { ...lockedRobots };
+    }
+  }, [
+    lockedRobots,
+    teamPatternTree,
+    players.length,
+    handleCalculateOptimization,
+  ]);
 
   if (!isLoaded) {
     return (

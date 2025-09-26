@@ -163,6 +163,19 @@ function AllPatternsTableComponent({
       // このプレイヤーの各パターンを試す
       playerPatterns.forEach((pattern) => {
         const newPoints = currentPoints + pattern.pointUsage;
+
+        // 固定機体チェック
+        const playerLockedRobot = lockedRobots[playerName];
+        if (playerLockedRobot) {
+          // 固定機体が指定されている場合、そのロボットが含まれているかチェック
+          const hasLockedRobot = pattern.robots.some(
+            (robot) => robot.name === playerLockedRobot
+          );
+          if (!hasLockedRobot) {
+            return; // 固定機体が含まれていないパターンはスキップ
+          }
+        }
+
         if (newPoints <= totalPointLimit) {
           const newAssignment = { ...currentAssignment };
           newAssignment[playerName] = pattern.robots;
@@ -215,13 +228,13 @@ function AllPatternsTableComponent({
               className="flex items-center flex-wrap gap-1 text-xs"
             >
               {getSkillIcon(robot.skillLevel)}
-              <span className="font-medium">{robot.name}</span>
               <Badge
                 className={getRatioBadgeClass(robot.ratio)}
                 variant="secondary"
               >
                 {robot.ratio}PT
               </Badge>
+              <span className="font-medium">{robot.name}</span>
               <span className="text-gray-500 text-xs">
                 ({robot.skillLevel})
               </span>

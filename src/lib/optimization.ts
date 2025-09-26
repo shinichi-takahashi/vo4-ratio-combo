@@ -781,6 +781,12 @@ export function generateBalancedPatterns(
         )
           return false;
 
+        // プレイヤーに固定機体がある場合、それ以外は除外
+        const playerLockedRobot = lockedRobots?.[player.name];
+        if (playerLockedRobot) {
+          return robot.name === playerLockedRobot;
+        }
+
         // 他のプレイヤーに固定されている機体は除外
         if (lockedRobots) {
           const isLockedByOther = Object.entries(lockedRobots).some(
@@ -823,6 +829,7 @@ export function generateBalancedPatterns(
   ) {
     const combination = generateBalancedCombination(
       players,
+      robots,
       playerMainSubRobots,
       pointLimit,
       lockedRobots
@@ -847,12 +854,25 @@ export function generateBalancedPatterns(
     }
   }
 
-  return patterns.slice(0, maxPatterns);
+  // 固定機体フィルターを適用
+  const filteredPatterns = patterns.filter((pattern) => {
+    // 該当プレイヤーに固定機体が指定されている場合のみチェック
+    const playerLockedRobot = lockedRobots?.[pattern.playerName];
+    if (playerLockedRobot) {
+      // 固定機体が含まれているかチェック
+      return pattern.robots.some((robot) => robot.name === playerLockedRobot);
+    }
+    // 固定機体が指定されていない場合はそのまま通す
+    return true;
+  });
+
+  return filteredPatterns.slice(0, maxPatterns);
 }
 
 // バランス重視の組み合わせを生成
 function generateBalancedCombination(
   players: Player[],
+  robots: Robot[],
   playerMainSubRobots: Record<string, RobotWithSkill[]>,
   pointLimit: number,
   lockedRobots?: Record<string, string>
@@ -879,12 +899,29 @@ function generateBalancedCombination(
     let selectedRobot: RobotWithSkill | null = null;
 
     if (playerLockedRobot) {
-      // 固定機体がある場合
-      const lockedRobotData = playerMainSubRobots[player.name]?.find(
+      // 固定機体がある場合 - まず全ロボットから探す
+      const allPlayerRobots = robots
+        .map((robot) => {
+          const skill = player.skills[robot.name] || "使えない";
+          const skillValue = SKILL_LEVELS[skill].value;
+          return {
+            ...robot,
+            skillValue,
+            playerName: player.name,
+            skillLevel: skill,
+          };
+        })
+        .filter((robot) => robot.skillValue > 0);
+
+      const lockedRobotData = allPlayerRobots.find(
         (r) => r.name === playerLockedRobot
       );
+
       if (lockedRobotData && lockedRobotData.ratio <= remainingPoints) {
         selectedRobot = lockedRobotData;
+      } else {
+        // 固定機体が見つからない、またはポイント不足の場合は失敗
+        return null;
       }
     } else {
       // メイン・サブ機から選択
@@ -1076,5 +1113,34 @@ export function generatePlayerPriorityPatterns(
     });
   }
 
-  return patterns;
+  // 固定機体フィルターを適用
+  const filteredPatterns = patterns.filter((pattern) => {
+    // 固定機体チェック - 優先プレイヤーの場合
+    const priorityPlayerLockedRobot = lockedRobots?.[pattern.playerName];
+    if (priorityPlayerLockedRobot) {
+      const hasLockedRobot = pattern.robots.some(
+        (robot) => robot.name === priorityPlayerLockedRobot
+      );
+      if (!hasLockedRobot) {
+        return false;
+      }
+    }
+
+    // 代替パターンでも固定機体チェック
+    if (pattern.alternatives) {
+      return pattern.alternatives.every((alt) => {
+        const altPlayerLockedRobot = lockedRobots?.[alt.playerName];
+        if (altPlayerLockedRobot) {
+          return alt.robots.some(
+            (robot) => robot.name === altPlayerLockedRobot
+          );
+        }
+        return true;
+      });
+    }
+
+    return true;
+  });
+
+  return filteredPatterns;
 }
