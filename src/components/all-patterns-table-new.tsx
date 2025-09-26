@@ -140,10 +140,25 @@ function AllPatternsTableComponent({
             .reduce((sum, r) => sum + r.skillValue, 0);
           const efficiency = totalSkillValue / currentPoints;
 
-          // 組み合わせIDを生成
-          const combinationId = `${currentPoints}-${totalMainRobots}-${efficiency.toFixed(
-            2
-          )}`;
+          // 組み合わせIDを生成（機体名も含めて完全にユニークに）
+          const assignmentKey = Object.entries(currentAssignment)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(
+              ([playerName, robots]) =>
+                `${playerName}:${robots
+                  .map((r) => r.name)
+                  .sort()
+                  .join(",")}`
+            )
+            .join("|");
+          const combinationId = assignmentKey;
+          
+          // デバッグ用: 重複チェック
+          const existingRow = rows.find(r => r.combinationId === combinationId);
+          if (existingRow) {
+            // 既に同じ組み合わせがある場合はスキップ
+            return;
+          }
 
           // 1行1編成パターンとして追加
           rows.push({
@@ -186,16 +201,18 @@ function AllPatternsTableComponent({
 
     generateCombinations(0, {}, 0);
 
-    // メイン機数 → 効率でソートして上位20組み合わせに限定
+    // 効率 → 総ポイントでソートして上位20組み合わせに限定
     const uniqueCombinations = Array.from(
       new Set(rows.map((r) => r.combinationId))
     )
       .map((id) => rows.find((r) => r.combinationId === id)!)
       .sort((a, b) => {
-        if (a.totalMainRobots !== b.totalMainRobots) {
-          return b.totalMainRobots - a.totalMainRobots;
+        // 第一に効率が高い順
+        if (Math.abs(a.efficiency - b.efficiency) > 0.01) {
+          return b.efficiency - a.efficiency;
         }
-        return b.efficiency - a.efficiency;
+        // 第二に総ポイントが高い順
+        return b.totalPoints - a.totalPoints;
       })
       .slice(0, 20);
 

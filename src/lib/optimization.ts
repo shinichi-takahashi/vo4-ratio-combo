@@ -819,12 +819,13 @@ export function generateBalancedPatterns(
   });
 
   // メイン・サブ機を多く含む組み合わせを優先的に生成（パフォーマンス最適化）
-  const maxPatterns = 25; // 候補数を適切に調整
+  const maxPatterns = 50; // 候補数を増やして多様性を確保
   const usedCombinations = new Set<string>();
+  const teamCombinations = new Map<string, any[]>(); // チーム編成の重複をチェック
 
   for (
     let attempt = 0;
-    attempt < 150 && patterns.length < maxPatterns; // 試行回数を最適化
+    attempt < 300 && teamCombinations.size < maxPatterns; // チーム数でカウント
     attempt++
   ) {
     const combination = generateBalancedCombination(
@@ -835,23 +836,24 @@ export function generateBalancedPatterns(
       lockedRobots
     );
 
-    if (combination && combination.length > 0) {
+    if (combination && combination.length === players.length) {
       // 組み合わせをソートして一意性をチェック
       const sortedCombination = [...combination].sort((a, b) =>
         a.playerName.localeCompare(b.playerName)
       );
       const combinationKey = sortedCombination
-        .map((c) => `${c.playerName}:${c.robots[0]?.name}`)
+        .map((c) => `${c.playerName}:${c.robots.map(r => r.name).sort().join(',')}`)
         .join("|");
 
-      if (!usedCombinations.has(combinationKey)) {
-        usedCombinations.add(combinationKey);
-        // 完全なチーム編成のみを追加（全プレイヤーが機体を持つ）
-        if (combination.length === players.length) {
-          patterns.push(...combination);
-        }
+      if (!teamCombinations.has(combinationKey)) {
+        teamCombinations.set(combinationKey, combination);
       }
     }
+  }
+
+  // Map から配列に変換
+  for (const combination of teamCombinations.values()) {
+    patterns.push(...combination);
   }
 
   // 固定機体フィルターを適用

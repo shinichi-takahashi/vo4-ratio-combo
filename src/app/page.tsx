@@ -45,7 +45,6 @@ import { Robot, SKILL_LEVELS, SkillLevel } from "@/types";
 import { generateShareableUrl, copyUrlToClipboard } from "@/lib/url-state";
 import {
   generateTeamPatternTree,
-  generatePlayerPriorityPatterns,
   generateBalancedPatterns,
 } from "@/lib/optimization";
 import { PlayerPointPatterns } from "@/components/player-point-patterns";
@@ -110,15 +109,6 @@ export default function Home() {
   const [lockedRobots, setLockedRobots] = useState<Record<string, string>>({});
   // { "プレイヤー名": "機体名" } の形式
 
-  // パターン表示タブの状態管理
-  const [selectedPatternType, setSelectedPatternType] =
-    useState<string>("balance");
-
-  // プレイヤー優先パターンの状態管理
-  const [playerPriorityPatterns, setPlayerPriorityPatterns] = useState<
-    Record<number, any[]>
-  >({});
-
   // バランスパターンの状態管理
   const [balancedPatterns, setBalancedPatterns] = useState<any[]>([]);
 
@@ -175,48 +165,6 @@ export default function Home() {
       },
     }));
   }, [debouncedPlayers, memoizedRobotData]);
-
-  // パターン選択変更時の処理（最適化版）
-  const handlePatternTypeChange = useCallback(
-    (value: string) => {
-      setSelectedPatternType(value);
-
-      // 遅延実行で不要な計算を防止
-      setTimeout(() => {
-        if (
-          value.startsWith("player-") &&
-          memoizedPlayersWithSkills.length > 0 &&
-          memoizedRobotData.length > 0
-        ) {
-          const playerId = parseInt(value.replace("player-", ""));
-          if (
-            !playerPriorityPatterns[playerId] ||
-            playerPriorityPatterns[playerId].length === 0
-          ) {
-            // 必要に応じて個別に計算
-            const priorityPatterns = generatePlayerPriorityPatterns(
-              memoizedPlayersWithSkills,
-              memoizedRobotData,
-              pointLimit,
-              playerId,
-              lockedRobots
-            );
-            setPlayerPriorityPatterns((prev) => ({
-              ...prev,
-              [playerId]: priorityPatterns,
-            }));
-          }
-        }
-      }, 100);
-    },
-    [
-      memoizedPlayersWithSkills,
-      memoizedRobotData,
-      pointLimit,
-      lockedRobots,
-      playerPriorityPatterns,
-    ]
-  );
 
   // 結果表示用のref
   const teamResultRef = useRef<HTMLDivElement>(null);
@@ -279,31 +227,14 @@ export default function Home() {
 
       setTeamPatternTree(treePatterns);
 
-      // パフォーマンス最適化: 選択されたパターンタイプに応じて計算
-      if (selectedPatternType === "balance") {
-        // バランスパターンのみ生成
-        const balancePatterns = generateBalancedPatterns(
-          playersWithAllSkills,
-          memoizedRobotData,
-          pointLimit,
-          lockedRobots
-        );
-        setBalancedPatterns(balancePatterns);
-      } else {
-        // プレイヤー優先パターンのみ生成
-        const playerId = parseInt(selectedPatternType.replace("player-", ""));
-        const currentPlayerPatterns = generatePlayerPriorityPatterns(
-          playersWithAllSkills,
-          memoizedRobotData,
-          pointLimit,
-          playerId,
-          lockedRobots
-        );
-        setPlayerPriorityPatterns((prev) => ({
-          ...prev,
-          [playerId]: currentPlayerPatterns,
-        }));
-      }
+      // バランスパターンを生成
+      const balancePatterns = generateBalancedPatterns(
+        playersWithAllSkills,
+        memoizedRobotData,
+        pointLimit,
+        lockedRobots
+      );
+      setBalancedPatterns(balancePatterns);
 
       // 結果が表示されたら自動スクロール
       setTimeout(() => {
@@ -320,16 +251,7 @@ export default function Home() {
     } finally {
       setIsCalculating(false);
     }
-  }, [
-    selectedPatternType,
-    memoizedPlayersWithSkills,
-    memoizedRobotData,
-    pointLimit,
-    lockedRobots,
-    setPlayerPriorityPatterns,
-    setBalancedPatterns,
-    setTeamPatternTree,
-  ]);
+  }, [memoizedPlayersWithSkills, memoizedRobotData, pointLimit, lockedRobots]);
 
   // 固定機体変更時の自動再計算
   useEffect(() => {
@@ -706,7 +628,7 @@ export default function Home() {
                 </CardHeader>
 
                 {/* プレイヤー別機体固定設定 */}
-                <CardContent className="border-t border-purple-100">
+                <CardContent className="border-t border-purple-100 mt-6 pt-6">
                   <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200">
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="p-2 bg-orange-100 rounded-lg">
@@ -857,50 +779,9 @@ export default function Home() {
                 {/* 編成パターン表本体 */}
                 <CardContent className="pt-0">
                   <div className="space-y-4">
-                    {/* パターン選択ドロップダウン */}
-                    <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl border border-indigo-200">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl">🎛️</span>
-                        <label className="text-sm font-bold text-gray-700">
-                          編成優先設定:
-                        </label>
-                      </div>
-                      <Select
-                        value={selectedPatternType}
-                        onValueChange={handlePatternTypeChange}
-                      >
-                        <SelectTrigger className="w-56 shadow-sm border-indigo-200 focus:border-indigo-400 focus:ring-indigo-200">
-                          <SelectValue placeholder="🎯 パターンを選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="balance">⚖️ バランス</SelectItem>
-                          {players.map((player) => (
-                            <SelectItem
-                              key={player.id}
-                              value={`player-${player.id}`}
-                            >
-                              🌟 {player.name}優先
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
                     {/* パターン表示 */}
                     <AllPatternsTable
-                      patterns={
-                        selectedPatternType === "balance"
-                          ? balancedPatterns
-                          : players.find(
-                              (p) => `player-${p.id}` === selectedPatternType
-                            )
-                          ? playerPriorityPatterns[
-                              players.find(
-                                (p) => `player-${p.id}` === selectedPatternType
-                              )!.id
-                            ] || []
-                          : []
-                      }
+                      patterns={balancedPatterns}
                       totalPointLimit={pointLimit}
                       playerNames={players.map((p) => p.name)}
                       lockedRobots={lockedRobots}
