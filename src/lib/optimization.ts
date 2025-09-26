@@ -726,3 +726,335 @@ export function generateOptimizationPatterns(
     priorityPatterns,
   };
 }
+
+// プレイヤー優先のチーム編成パターンを生成
+// バランス重視のチーム編成パターンを生成（メイン・サブ機優先）
+export function generateBalancedPatterns(
+  players: Player[],
+  robots: Robot[],
+  pointLimit: number,
+  lockedRobots?: Record<string, string>
+): Array<{
+  playerName: string;
+  pointUsage: number;
+  robots: RobotWithSkill[];
+  alternatives?: Array<{
+    playerName: string;
+    pointUsage: number;
+    robots: RobotWithSkill[];
+  }>;
+}> {
+  // より多くの人がメイン・サブ機に乗れるパターンを生成
+  const patterns: Array<{
+    playerName: string;
+    pointUsage: number;
+    robots: RobotWithSkill[];
+    alternatives?: Array<{
+      playerName: string;
+      pointUsage: number;
+      robots: RobotWithSkill[];
+    }>;
+  }> = [];
+
+  // 各プレイヤーのメイン・サブ機をリストアップ
+  const playerMainSubRobots: Record<string, RobotWithSkill[]> = {};
+
+  players.forEach((player) => {
+    const mainSubRobots = robots
+      .map((robot) => {
+        const skill = player.skills[robot.name] || "使えない";
+        const skillValue = SKILL_LEVELS[skill].value;
+
+        return {
+          ...robot,
+          skillValue,
+          playerName: player.name,
+          skillLevel: skill,
+        };
+      })
+      .filter((robot) => {
+        // メイン機・サブ機・一応乗れるまで含める（より多様なパターン生成のため）
+        if (
+          robot.skillLevel !== "メイン機" &&
+          robot.skillLevel !== "サブ機" &&
+          robot.skillLevel !== "一応乗れる"
+        )
+          return false;
+
+        // 他のプレイヤーに固定されている機体は除外
+        if (lockedRobots) {
+          const isLockedByOther = Object.entries(lockedRobots).some(
+            ([otherPlayer, robotName]) =>
+              otherPlayer !== player.name && robotName === robot.name
+          );
+          if (isLockedByOther) return false;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        // メイン機を最優先
+        if (a.skillLevel === "メイン機" && b.skillLevel !== "メイン機")
+          return -1;
+        if (b.skillLevel === "メイン機" && a.skillLevel !== "メイン機")
+          return 1;
+
+        // サブ機を次に優先
+        if (a.skillLevel === "サブ機" && b.skillLevel === "一応乗れる")
+          return -1;
+        if (b.skillLevel === "サブ機" && a.skillLevel === "一応乗れる")
+          return 1;
+
+        // 同じスキルレベルの場合はレシオが低い順
+        return a.ratio - b.ratio;
+      });
+
+    playerMainSubRobots[player.name] = mainSubRobots;
+  });
+
+  // メイン・サブ機を多く含む組み合わせを優先的に生成
+  const maxPatterns = 50; // 候補数を大幅増加
+  const usedCombinations = new Set<string>();
+
+  for (
+    let attempt = 0;
+    attempt < 300 && patterns.length < maxPatterns; // 試行回数も増加
+    attempt++
+  ) {
+    const combination = generateBalancedCombination(
+      players,
+      playerMainSubRobots,
+      pointLimit,
+      lockedRobots
+    );
+
+    if (combination && combination.length > 0) {
+      // 組み合わせをソートして一意性をチェック
+      const sortedCombination = [...combination].sort((a, b) =>
+        a.playerName.localeCompare(b.playerName)
+      );
+      const combinationKey = sortedCombination
+        .map((c) => `${c.playerName}:${c.robots[0]?.name}`)
+        .join("|");
+
+      if (!usedCombinations.has(combinationKey)) {
+        usedCombinations.add(combinationKey);
+        patterns.push(...combination);
+      }
+    }
+  }
+
+  return patterns.slice(0, maxPatterns);
+}
+
+// バランス重視の組み合わせを生成
+function generateBalancedCombination(
+  players: Player[],
+  playerMainSubRobots: Record<string, RobotWithSkill[]>,
+  pointLimit: number,
+  lockedRobots?: Record<string, string>
+): Array<{
+  playerName: string;
+  pointUsage: number;
+  robots: RobotWithSkill[];
+}> | null {
+  const assignment: Array<{
+    playerName: string;
+    pointUsage: number;
+    robots: RobotWithSkill[];
+  }> = [];
+
+  const usedRobots = new Set<string>();
+  let remainingPoints = pointLimit;
+
+  // ランダムにプレイヤーの順序を決定
+  const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+
+  for (const player of shuffledPlayers) {
+    const playerLockedRobot = lockedRobots?.[player.name];
+
+    let selectedRobot: RobotWithSkill | null = null;
+
+    if (playerLockedRobot) {
+      // 固定機体がある場合
+      const lockedRobotData = playerMainSubRobots[player.name]?.find(
+        (r) => r.name === playerLockedRobot
+      );
+      if (lockedRobotData && lockedRobotData.ratio <= remainingPoints) {
+        selectedRobot = lockedRobotData;
+      }
+    } else {
+      // メイン・サブ機から選択
+      const availableRobots =
+        playerMainSubRobots[player.name]?.filter(
+          (robot) =>
+            !usedRobots.has(robot.name) && robot.ratio <= remainingPoints
+        ) || [];
+
+      if (availableRobots.length > 0) {
+        // ランダム性を追加してより多様なパターンを生成
+        // 上位候補からランダムに選択（メイン機優先は維持）
+        const topCandidates = availableRobots.slice(
+          0,
+          Math.min(3, availableRobots.length)
+        );
+        const randomIndex = Math.floor(Math.random() * topCandidates.length);
+        selectedRobot = topCandidates[randomIndex];
+      }
+    }
+
+    if (selectedRobot) {
+      assignment.push({
+        playerName: player.name,
+        pointUsage: selectedRobot.ratio,
+        robots: [selectedRobot],
+      });
+      usedRobots.add(selectedRobot.name);
+      remainingPoints -= selectedRobot.ratio;
+    } else {
+      // メイン・サブ機がない場合は失敗
+      return null;
+    }
+  }
+
+  return assignment;
+}
+
+export function generatePlayerPriorityPatterns(
+  players: Player[],
+  robots: Robot[],
+  pointLimit: number,
+  priorityPlayerId: number,
+  lockedRobots?: Record<string, string>
+): Array<{
+  playerName: string;
+  pointUsage: number;
+  robots: RobotWithSkill[];
+  alternatives?: Array<{
+    playerName: string;
+    pointUsage: number;
+    robots: RobotWithSkill[];
+  }>;
+}> {
+  const priorityPlayer = players.find((p) => p.id === priorityPlayerId);
+  if (!priorityPlayer) return [];
+
+  // 優先プレイヤーの使用可能機体を取得
+  const priorityPlayerRobots = robots
+    .map((robot) => {
+      const skill = priorityPlayer.skills[robot.name] || "使えない";
+      const skillValue = SKILL_LEVELS[skill].value;
+
+      return {
+        ...robot,
+        skillValue,
+        playerName: priorityPlayer.name,
+        skillLevel: skill,
+      };
+    })
+    .filter((robot) => {
+      // 一応乗れる以上のスキルレベルを含める
+      if (robot.skillLevel === "自信なし" || robot.skillLevel === "使えない")
+        return false;
+
+      // 他のプレイヤーに固定されている機体は除外
+      if (lockedRobots) {
+        const isLockedByOther = Object.entries(lockedRobots).some(
+          ([otherPlayer, robotName]) =>
+            otherPlayer !== priorityPlayer.name && robotName === robot.name
+        );
+        if (isLockedByOther) return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      // メイン機を最優先
+      if (a.skillLevel === "メイン機" && b.skillLevel !== "メイン機") return -1;
+      if (b.skillLevel === "メイン機" && a.skillLevel !== "メイン機") return 1;
+
+      // スキル値/レシオ比で効率順
+      return b.skillValue / b.ratio - a.skillValue / a.ratio;
+    });
+
+  const patterns: Array<{
+    playerName: string;
+    pointUsage: number;
+    robots: RobotWithSkill[];
+    alternatives?: Array<{
+      playerName: string;
+      pointUsage: number;
+      robots: RobotWithSkill[];
+    }>;
+  }> = [];
+
+  // 優先プレイヤーの最適機体を使ったパターンを生成（最大30パターン）
+  for (let i = 0; i < Math.min(priorityPlayerRobots.length, 30); i++) {
+    const robot = priorityPlayerRobots[i];
+    const remainingPoints = pointLimit - robot.ratio;
+
+    if (remainingPoints < 0) continue;
+
+    // 他のプレイヤーの最適組み合わせを計算
+    const otherPlayers = players.filter((p) => p.id !== priorityPlayerId);
+    const alternatives: Array<{
+      playerName: string;
+      pointUsage: number;
+      robots: RobotWithSkill[];
+    }> = [];
+
+    // 簡単な貪欲法で他プレイヤーの機体を割り当て
+    const usedRobots = new Set([robot.name]);
+    let currentRemainingPoints = remainingPoints;
+
+    otherPlayers.forEach((player) => {
+      const playerBestRobot = robots
+        .filter((r) => !usedRobots.has(r.name))
+        .map((r) => {
+          const skill = player.skills[r.name] || "使えない";
+          const skillValue = SKILL_LEVELS[skill].value;
+
+          return {
+            ...r,
+            skillValue,
+            playerName: player.name,
+            skillLevel: skill,
+          };
+        })
+        .filter((r) => {
+          // 一応乗れる以上のスキルレベルを含める
+          if (r.skillLevel === "自信なし" || r.skillLevel === "使えない")
+            return false;
+          if (r.ratio > currentRemainingPoints) return false;
+
+          // 固定機体チェック
+          const playerLockedRobot = lockedRobots?.[player.name];
+          if (playerLockedRobot && r.name !== playerLockedRobot) {
+            return false;
+          }
+
+          return true;
+        })
+        .sort((a, b) => b.skillValue / b.ratio - a.skillValue / a.ratio)[0];
+
+      if (playerBestRobot) {
+        alternatives.push({
+          playerName: player.name,
+          pointUsage: playerBestRobot.ratio,
+          robots: [playerBestRobot],
+        });
+        usedRobots.add(playerBestRobot.name);
+        currentRemainingPoints -= playerBestRobot.ratio;
+      }
+    });
+
+    patterns.push({
+      playerName: priorityPlayer.name,
+      pointUsage: robot.ratio,
+      robots: [robot],
+      alternatives,
+    });
+  }
+
+  return patterns;
+}
